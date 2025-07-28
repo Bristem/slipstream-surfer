@@ -1,3 +1,9 @@
+// IMPORTANT: ITEM_SPORTS FOR SOME REASON BREAKS THINGS, LEAVE DISABLED
+// raycast check for airborne just completely breaks and lags the server when sportsballs are enabled. may be some other conflict with modded modter addon but everything fixed up with sports disabled.
+// i dont know why and i dont care to know yet
+
+// TODO get bps max to 150?
+
 datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
 {
    uiName = "Boost Surf Player";
@@ -11,9 +17,10 @@ datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
    mass = 120;
    boundingBox = "5 5 10.6";
 
-   maxForwardSpeed = 300;
-	maxBackwardSpeed = 15;
-	maxSideSpeed = 125;
+   maxForwardSpeed = 200;
+   horizMaxSpeed = 100;
+	maxBackwardSpeed = 100;
+	maxSideSpeed = 100;
 
    airControl = 0.5;
 	runSurfaceAngle = 20;
@@ -43,16 +50,14 @@ datablock ProjectileData(boostExplosionProjectile) {
 };
 
 // broom particles
-datablock ExplosionData(boostBroomExplosion : pushBroomExplosion)
+datablock ExplosionData(boostBroomExplosion : tumbleImpactAExplosion)
 {
-   camShakeDuration = 0;
-   uiName = "Boost Broom";
+   soundProfile = "";
 };
 
-datablock ProjectileData(boostBroomProjectile : pushBroomProjectile)
+datablock ProjectileData(boostBroomProjectile : tumbleImpactAProjectile)
 {
    explosion = boostBroomExplosion;
-   uiName = "Boost Broom";
 };
 
 //placeholder slingshot emitter, replace later with road drif particles r something
@@ -72,12 +77,12 @@ datablock ShapeBaseImageData(boostFuseImage)
 	stateEmitterTime[0]           = 99;
 };
 
-function PlayerBoostArmor::onNewDataBlock(%this, %obj) //shamelessly ripped timer from gamemode surf
+function PlayerBoostArmor::onNewDataBlock(%this, %obj) 
 {
 	%obj.surfTick();
 }
 
-function Player::surfTick(%this) 
+function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
 {
 	cancel(%this.surfTick);
 
@@ -87,12 +92,12 @@ function Player::surfTick(%this)
 	%max = 75;
 	%min = 25;
 
-	if (isObject(%this.client)) 
+	if (isObject(%this.client)) // HUD
    {
 		%speed = %this.getSpeedInBPS();
 		%text = "\c6  SPEED <color:FFFFAA> " @ mFloatLength(%speed, 0) SPC "BPS";
       if(%this.hasBoosted)
-         %dashcolor = "<color:a0a0a0>";
+         %dashcolor = "<color:a0a0a0>"; // dash on cooldown display
       else
          %dashcolor = "\c4";
 
@@ -109,6 +114,20 @@ function Player::surfTick(%this)
 		commandToClient(%this.client, 'BottomPrint', "<font:lucida console:19>" @ %text, 0.25, 1);
 	}
 
+   if (getSimTime() - %this.spawnTime > $Game::PlayerInvulnerabilityTime && getWord(%this.position, 2) < 0.3) // force respawn on ground
+   {
+      if (isObject(%this.client)) 
+      {
+         %this.client.instantRespawn();
+      }
+      else 
+      {
+         %this.kill();
+      }
+
+      return;
+	}
+
 	%this.surfTick = %this.schedule(50, surfTick);
 }
 
@@ -120,6 +139,8 @@ function Player::getSpeedInBPS(%this) // bricks per second, thanks to Buddy for 
 // ripped impulse jump from tf2 scout pack
 // thank you space guy and co
 
+// TODO: speed check and emitter for going fast, scales up, sound effect
+// TODO: mount temporary image on air dash and slingshot, plus sound
 function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on) 
 {
    %r = Parent::onTrigger(%this,%obj,%slot,%on);
@@ -172,9 +193,9 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
          %obj.unmountImage(2);
          if(%obj.isDrifting && !(%obj.isAirborne()) && %obj.driftCooldown == 0)
          {
-            if(%obj.driftCounter < 18) // 540 ms given 30ms ticks
+            if(%obj.driftCounter < 18 && %obj.driftStoredSpeed > 70) // eighteen 30ms ticks, 520 ms
             {
-               %obj.driftStoredSpeed -= 30; // reduce speed if the drift is too low
+               %obj.driftStoredSpeed /= 3; // reduce speed if the drift is too low
             }
             %boostVector = VectorScale(%obj.getEyeVector(), %obj.driftStoredSpeed * 60);
             %obj.setVelocity("0 0 0");
@@ -194,7 +215,7 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
             %p.setScale(%scaleFactor SPC %scaleFactor SPC %scaleFactor);
             %p.explode();
 
-            %obj.driftCooldown = 40;
+            %obj.driftCooldown = 90;
             %obj.driftCooldownTick();
             
          }
@@ -257,7 +278,7 @@ function Player::driftCooldownTick(%this) // loop check to get drift back after 
    %this.driftCooldownTick = %this.schedule(30, driftCooldownTick);
 }
 
-
+// TODO: unmount image if gone air
 function Player::driftTick(%this) // incrementing counter as we drift and attaching appropriate emitters
 {
    cancel(%this.driftTick);
@@ -273,13 +294,20 @@ function Player::driftTick(%this) // incrementing counter as we drift and attach
       return;
    }
 
+   if(%this.driftStoredSpeed < 25)
+   {
+      return;
+   }
+
    if(%this.isAirborne())
    {
       %this.driftCounter = 0;
       %this.driftStoredSpeed = %this.getSpeedInBPS();
+      %this.unmountImage(2);
    }
    else
    {
+      %scaleFactor = 0.2;
       if(%this.driftCooldown > 0)
       {
          %this.driftCooldown -= 1;
@@ -288,26 +316,28 @@ function Player::driftTick(%this) // incrementing counter as we drift and attach
       if(%this.driftCounter < 18) // at low drift time
       {
          %this.driftCounter += 1;
+         
 
-         %scaleFactor = getWord(%this.getScale(), 2) * 2;
-         %data = boostBroomProjectile;
-         %p = new Projectile()
-         {
-            dataBlock = %data;
-            initialPosition = %this.getPosition();
-            initialVelocity = "0 0 -1";
-            sourceObject = %this;
-            client = %this.client;
-            sourceSlot = 0;
-            originPoint = %this.getPosition();
-         };
-         %p.setScale(%scaleFactor SPC %scaleFactor SPC %scaleFactor);
-         %p.explode();
       }
-      else if(%this.driftStoredSpeed > 70) // at high drift time AND high enough speed
+      else if(%this.driftStoredSpeed > 50) // at high drift time AND high enough speed
       {
          %this.mountImage(boostFuseImage, 2);
+         %scaleFactor = 0.4;
       }
+      //%scaleFactor = getWord(%this.getScale(), 2) * 2;
+      %data = boostBroomProjectile;
+      %p = new Projectile()
+      {
+         dataBlock = %data;
+         initialPosition = %this.getPosition();
+         initialVelocity = "0 0 -1";
+         sourceObject = %this;
+         client = %this.client;
+         sourceSlot = 0;
+         originPoint = %this.getPosition();
+      };
+      %p.setScale(%scaleFactor SPC %scaleFactor SPC %scaleFactor);
+      %p.explode();
    }
    
 
