@@ -133,9 +133,9 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
             %obj.slingCooldownTick();
             
          }
-         return %r;
+         return %r;  
       }
-      
+
       %obj.hasBoosted = true;
       %obj.airBoostTick();
       %speed = %obj.getSpeedInBPS();
