@@ -2,6 +2,8 @@
 // raycast check for airborne just completely breaks and lags the server when sportsballs are enabled. may be some other conflict with modded modter addon but everything fixed when sports werent on
 // i dont know why and i dont care to know yet
 
+// Image slot 1 stores emitter for charged drift indicating slingshot readiness
+
 datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
 {
    uiName = "Boost Surf Player";
@@ -111,6 +113,7 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
             {
                %obj.driftStoredSpeed /= 3; // reduce speed if the drift is too low
             }
+            %obj.unmountImage(1);
             %boostVector = VectorScale(%obj.getEyeVector(), %obj.driftStoredSpeed * 60);
             %obj.setVelocity("0 0 0");
             %obj.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 15);
@@ -238,8 +241,7 @@ function Player::slingCooldownTick(%this) // schedule loop to decrement sling co
    %this.slingCooldownTick = %this.schedule(30, slingCooldownTick);
 }
 
-// TODO: unmount image if gone air
-function Player::driftTick(%this) // drift cooldown and timer to emitter logic
+function Player::driftTick(%this) // drift cooldown and timer, applying emitter logic
 {
    cancel(%this.driftTick);
    if (%this.getState() $= "Dead") 
