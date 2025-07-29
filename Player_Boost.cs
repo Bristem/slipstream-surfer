@@ -99,12 +99,42 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
 {
    %r = Parent::onTrigger(%this,%obj,%slot,%on);
 
-   if(%slot == 4 && %on) // air dash logic
+   if(%slot == 4 && %on) // jet air dash logic
    { 
       if(%obj.hasBoosted)
          return %r;
-      if(!%obj.isAirborne())
+      if(!%obj.isAirborne()) // sling shot logic
+      {
+         if(%obj.isDrifting && !(%obj.isAirborne()) && %obj.slingCooldown == 0)
+         {
+            if(%obj.driftCounter < 18 && %obj.driftStoredSpeed > 70) // eighteen 30ms ticks, 520 ms
+            {
+               %obj.driftStoredSpeed /= 3; // reduce speed if the drift is too low
+            }
+            %boostVector = VectorScale(%obj.getEyeVector(), %obj.driftStoredSpeed * 60);
+            %obj.setVelocity("0 0 0");
+            %obj.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 15);
+
+            %scaleFactor = (%obj.driftStoredSpeed / 135) * (mPow(%obj.driftCounter / 18, 2)); // scale explosion from a total of max speed possible and max drift time
+            %p = new Projectile()
+            {
+               dataBlock = boostExplosionProjectile;
+               initialPosition = %obj.getPosition();
+               initialVelocity = "0 0 -1";
+               sourceObject = %obj;
+               client = %obj.client;
+               sourceSlot = 0;
+               originPoint = %pos;
+            };
+            %p.setScale(%scaleFactor SPC %scaleFactor SPC %scaleFactor);
+            %p.explode();
+
+            %obj.slingCooldown = 166; 
+            %obj.slingCooldownTick();
+            
+         }
          return %r;
+      }
       
       %obj.hasBoosted = true;
       %obj.airBoostTick();
@@ -135,7 +165,7 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
       %p.setScale(%scaleFactor * 2 SPC %scaleFactor * 2 SPC %scaleFactor * 2);
       %p.explode();
    }
-   if(%slot == 3) // drift and slingshot logic
+   if(%slot == 3) // crouch drift
    {
       if(%on)
       {
@@ -149,34 +179,6 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
       if(!%on)
       {
          %obj.unmountImage(1);
-         if(%obj.isDrifting && !(%obj.isAirborne()) && %obj.slingCooldown == 90)
-         {
-            if(%obj.driftCounter < 18 && %obj.driftStoredSpeed > 70) // eighteen 30ms ticks, 520 ms
-            {
-               %obj.driftStoredSpeed /= 3; // reduce speed if the drift is too low
-            }
-            %boostVector = VectorScale(%obj.getEyeVector(), %obj.driftStoredSpeed * 60);
-            %obj.setVelocity("0 0 0");
-            %obj.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 15);
-
-            %scaleFactor = (%obj.driftStoredSpeed / 135) * (mPow(%obj.driftCounter / 18, 2)); // scale explosion from a total of max speed possible and max drift time
-            %p = new Projectile()
-            {
-               dataBlock = boostExplosionProjectile;
-               initialPosition = %obj.getPosition();
-               initialVelocity = "0 0 -1";
-               sourceObject = %obj;
-               client = %obj.client;
-               sourceSlot = 0;
-               originPoint = %pos;
-            };
-            %p.setScale(%scaleFactor SPC %scaleFactor SPC %scaleFactor);
-            %p.explode();
-
-            %obj.slingCooldown = 166; 
-            %obj.slingCooldownTick();
-            
-         }
          %obj.isDrifting = false;
       }
    }
@@ -301,7 +303,7 @@ function Player::driftTick(%this) // drift cooldown and timer to emitter logic
    }
 
    // drift turning
-   if(!%isInAir)
+   if(!%isInAir && %this.slingCooldown < 140)
    {
       %velVector = getWord(%this.getVelocity(), 0) SPC getWord(%this.getVelocity(), 1) SPC " 0"; // adjust vector to be purely horizontal
       %velSpeed = vectorLen(%velVector) * 2;

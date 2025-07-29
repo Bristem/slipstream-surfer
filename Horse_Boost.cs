@@ -2,14 +2,20 @@ datablock PlayerData(HorseBoostArmor : HorseArmor){
    uiName = "Boost Surf Horse";
    hasBoosted = false;
    isDrifting = false;
+   driftStoredSpeed = 0;
+   driftCounter = 0;
+   slingCooldown = 0;
 
-   mass = 120;
-   maxForwardSpeed = 300;
-	maxBackwardSpeed = 15;
-	maxSideSpeed = 125;
+   maxForwardSpeed = 100; // to get BPS, torque units multiplied by two, this max speed is 200
+   horizMaxSpeed = 100; // 
+   maxForwardCrouchSpeed = 100;
+	maxBackwardSpeed = 80;
+	maxSideSpeed = 80;
 
-   airControl = 0.5;
+   airControl = 1;
 	runSurfaceAngle = 20;
+   runForce = 3500;
+   maxStepHeight = 0;
 };
 
 function HorseBoostArmor::onNewDataBlock(%this, %obj) {
