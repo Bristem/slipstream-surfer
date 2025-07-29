@@ -262,7 +262,7 @@ function Player::driftTick(%this) // drift cooldown and timer to emitter logic
       %this.driftCounter = 0;
       %this.driftStoredSpeed = %this.getSpeedInBPS();
       %this.unmountImage(1);
-      %isAir = true;
+      %isInAir = true;
    }
    else
    {
@@ -300,17 +300,28 @@ function Player::driftTick(%this) // drift cooldown and timer to emitter logic
    }
 
    // drift turning
-   %vel = %this.getVelocity();
-   %speedCap = 80;
-   if(vectorLen((%vel) * 2 > %speedCap) || (vectorLen(%vel) * 2 > %this.driftStoredSpeed))
+   if(!%isInAir)
    {
-      %this.setVelocity(vectorScale(%vel, 0.80)); // decay speed if going too fast
-   }
-   if(!%isAir)
-   {
+      %velVector = getWord(%this.getVelocity(), 0) SPC getWord(%this.getVelocity(), 1) SPC " 0"; // adjust vector to be purely horizontal
+      %velSpeed = vectorLen(%velVector) * 2;
+      //announce("INITIAL" SPC %vel);
+      %speedCap = 105;
+      if(%velSpeed > %this.driftStoredSpeed)
+      {
+         %this.setVelocity(vectorScale(%velVector, 0.80)); // decay speed if going too fast
+         %velVector = getWord(%this.getVelocity(), 0) SPC getWord(%this.getVelocity(), 1) SPC " 0";
+      }
+      if (%velSpeed > %speedCap)
+      {
+         %hit = %velVector;
+         %vel = vectorScale(vectorNormalize(%velVector), %speedCap / 2); 
+         announce("INITIAL" SPC %hit SPC "REVISED" SPC %vel);
+         %this.setVelocity(%vel);
+      }
       %force = vectorScale(%this.getEyeVector(), 150);
+      %this.applyImpulse("0 0 0", getWord(%force, 0) SPC getWord(%force, 1) SPC "0");
    }
-   %this.applyImpulse("0 0 0", %force);
+
 
    %this.driftTick = %this.schedule(30, driftTick);
 }
