@@ -266,6 +266,7 @@ function Player::driftTick(%this) // drift cooldown and timer to emitter logic
    }
    else
    {
+      %isInAir = false;
       %scaleFactor = 0.4;
       if(%this.slingCooldown > 0)
       {
@@ -308,15 +309,16 @@ function Player::driftTick(%this) // drift cooldown and timer to emitter logic
       %speedCap = 105;
       if(%velSpeed > %this.driftStoredSpeed)
       {
-         %this.setVelocity(vectorScale(%velVector, 0.80)); // decay speed if going too fast
+         %this.setVelocity(vectorScale(%velVector, 0.95)); // decay speed if going too fast
          %velVector = getWord(%this.getVelocity(), 0) SPC getWord(%this.getVelocity(), 1) SPC " 0";
       }
       if (%velSpeed > %speedCap)
       {
          %hit = %velVector;
-         %vel = vectorScale(vectorNormalize(%velVector), %speedCap / 2); 
-         announce("INITIAL" SPC %hit SPC "REVISED" SPC %vel);
-         %this.setVelocity(%vel);
+         //%vel = vectorScale(vectorNormalize(%velVector), %speedCap / 2); 
+         //announce("INITIAL" SPC %hit SPC "REVISED" SPC %vel);
+         //%this.setVelocity(%vel);
+         %this.setVelocity(vectorScale(%velVector, 0.95));
       }
       %force = vectorScale(%this.getEyeVector(), 150);
       %this.applyImpulse("0 0 0", getWord(%force, 0) SPC getWord(%force, 1) SPC "0");
