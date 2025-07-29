@@ -2,79 +2,32 @@
 // raycast check for airborne just completely breaks and lags the server when sportsballs are enabled. may be some other conflict with modded modter addon but everything fixed up with sports disabled.
 // i dont know why and i dont care to know yet
 
-// TODO get bps max to 150?
-
 datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
 {
    uiName = "Boost Surf Player";
-   canJet = false;
+   
    hasBoosted = false;
    isDrifting = false;
    driftStoredSpeed = 0;
    driftCounter = 0;
    driftCooldown = 0;
+   driftBaseDirection = "0 0 0";
+
+   canJet = false;
 
    mass = 120;
    boundingBox = "5 5 10.6";
 
-   maxForwardSpeed = 200;
-   horizMaxSpeed = 100;
-	maxBackwardSpeed = 100;
-	maxSideSpeed = 100;
+   maxForwardSpeed = 100; // to get BPS, torque units multiplied by two, this max speed is 200
+   horizMaxSpeed = 100; // 
+   maxForwardCrouchSpeed = 100;
+	maxBackwardSpeed = 80;
+	maxSideSpeed = 80;
 
-   airControl = 0.5;
+   airControl = 1;
 	runSurfaceAngle = 20;
    runForce = 3500;
    maxStepHeight = 0;
-};
-
-// placeholder slingshot explosion boost
-datablock ExplosionData(boostExplosion : vehicleFinalExplosion)
-{
-   directDamage        = 0;
-   radiusDamage        = 0;
-   damageRadius        = 0;
-
-   camShakeDuration = 0.3;
-   camShakeFalloff = 2;
-   camShakeRadius = 5;
-};
-
-// im going to find whoever made this necessary
-// why does the function called spawnexplosion
-// NOT WORK WITH EXPLOSIONS
-datablock ProjectileData(boostExplosionProjectile) {
-   explosion = boostExplosion;
-   muzzleVelocity = 0;
-   lifetime = 10;
-};
-
-// broom particles
-datablock ExplosionData(boostBroomExplosion : tumbleImpactAExplosion)
-{
-   soundProfile = "";
-};
-
-datablock ProjectileData(boostBroomProjectile : tumbleImpactAProjectile)
-{
-   explosion = boostBroomExplosion;
-};
-
-//placeholder slingshot emitter, replace later with road drif particles r something
-datablock ShapeBaseImageData(boostFuseImage) 
-{
-   uiName = "Boost Fuse";
-
-   shapeFile = "base/data/shapes/empty.dts";
-	emap = false;
-
-   offset = "0 0 -1.8"; // slightly below player feet
-   mountpoint = 2;
-   rotation = eulerToMatrix("180 0 0");
-
-	stateName[0]                  = "Ready";
-	stateEmitter[0]               = cannonFuseCEmitter;
-	stateEmitterTime[0]           = 99;
 };
 
 function PlayerBoostArmor::onNewDataBlock(%this, %obj) 
@@ -141,6 +94,7 @@ function Player::getSpeedInBPS(%this) // bricks per second, thanks to Buddy for 
 
 // TODO: speed check and emitter for going fast, scales up, sound effect
 // TODO: mount temporary image on air dash and slingshot, plus sound
+// look into obj.playAudio(slot, sound)
 function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on) 
 {
    %r = Parent::onTrigger(%this,%obj,%slot,%on);
@@ -155,11 +109,12 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
       %obj.hasBoosted = true;
       %obj.airBoostTick();
       %speed = %obj.getSpeedInBPS();
-      if(%speed < 60) // speed limiter
-         %impulse = 60;
-      else if(%speed > 85)
-         %impulse = 85;
-      else %impulse = %speed;
+      //if(%speed < 60) // speed limiter
+         //%impulse = 60;
+      //else if(%speed > 85)
+         //%impulse = 85;
+      //else %impulse = %speed;
+      %impulse = 60;
       %boostVector = VectorScale(%obj.getEyeVector(), %impulse * 60); // 60 roughly matches given speed in BPS
       %obj.setVelocity("0 0 0");
       %obj.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 1300);
@@ -186,11 +141,15 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
       {
          %obj.isDrifting = true;
          %obj.driftStoredSpeed = %obj.getSpeedInBPS();
+         //%obj.driftBaseDirection = vectorNormalize(%obj.getEyeVector());
+         %obj.driftBaseDirection = %this.getEyeVector();
+         //announce(%obj.driftBaseDirection);
+         //announce(%obj.getEyeVector());
          %obj.driftTick();
       }
       if(!%on)
       {
-         %obj.unmountImage(2);
+         %obj.unmountImage(1);
          if(%obj.isDrifting && !(%obj.isAirborne()) && %obj.driftCooldown == 0)
          {
             if(%obj.driftCounter < 18 && %obj.driftStoredSpeed > 70) // eighteen 30ms ticks, 520 ms
@@ -215,7 +174,7 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
             %p.setScale(%scaleFactor SPC %scaleFactor SPC %scaleFactor);
             %p.explode();
 
-            %obj.driftCooldown = 90;
+            %obj.driftCooldown = 166; // Drift cooldown time stat
             %obj.driftCooldownTick();
             
          }
@@ -303,11 +262,11 @@ function Player::driftTick(%this) // incrementing counter as we drift and attach
    {
       %this.driftCounter = 0;
       %this.driftStoredSpeed = %this.getSpeedInBPS();
-      %this.unmountImage(2);
+      %this.unmountImage(1);
    }
    else
    {
-      %scaleFactor = 0.2;
+      %scaleFactor = 0.4;
       if(%this.driftCooldown > 0)
       {
          %this.driftCooldown -= 1;
@@ -321,8 +280,8 @@ function Player::driftTick(%this) // incrementing counter as we drift and attach
       }
       else if(%this.driftStoredSpeed > 50) // at high drift time AND high enough speed
       {
-         %this.mountImage(boostFuseImage, 2);
-         %scaleFactor = 0.4;
+         %this.mountImage(boostFuseImage, 1);
+         %scaleFactor = 0.9;
       }
       //%scaleFactor = getWord(%this.getScale(), 2) * 2;
       %data = boostBroomProjectile;
@@ -339,7 +298,25 @@ function Player::driftTick(%this) // incrementing counter as we drift and attach
       %p.setScale(%scaleFactor SPC %scaleFactor SPC %scaleFactor);
       %p.explode();
    }
+
+
+
+   %dir = vectorNormalize(%this.getVelocity());
+   %right = vectorCross(%dir, "0 0 1");
+   //announce("DIR" SPC %dir SPC "RIGHT" SPC %right);
+   // %blend = vectorAdd(vectorScale(%dir, 0.8), vectorScale(%steer, 0.2));
+   %force = vectorScale(%right, 200);
    
+
+   %vel = %this.getVelocity();
+   %vel = vectorScale(%vel, 0.99); // 10% decay
+   //%this.setVelocity(%vel);
+   %this.applyImpulse("0 0 0", %force);
+   // %steer = vectorNormalize(%this.getEyeVector());
+   // %this.setVelocity(vectorScale(%steer, %this.driftStoredSpeed / 2));
+   // %this.applyDriftImpulse();
+   
+   //%dot = vectorDot(
 
    %this.driftTick = %this.schedule(30, driftTick);
 }
@@ -359,4 +336,24 @@ function servercmdLight(%cl) // stomp ability onto light
       else
       Parent::servercmdLight(%cl);
    }
+}
+
+function Player::applyDriftImpulse(%this)
+{
+   
+   %vel = vectorScale(%this.getVelocity(), 1);
+   announce(%vel);
+   %this.setVelocity(%vel);
+
+   %dir = vectorNormalize(%vel);
+   %input = vectorNormalize(%this.getEyeVector());
+   %blend = vectorAdd(vectorScale(%dir, 1), vectorScale(%input, 1));
+
+   %driftFactor = mClampF(%this.driftCounter / 18, 0, 1);
+   %force = vectorScale(%blend, 90 * %driftFactor);
+
+   //if (%this.driftCooldown > 0)
+      //%force = vectorScale(%force, 0.5);
+
+   %this.applyImpulse("0 0 0", %force);
 }

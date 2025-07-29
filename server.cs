@@ -19,6 +19,7 @@ else if(%addon2 == $Error::AddOn_NotFound)
 else
 {
    //exec("./Support_AltDatablock.cs");
+   exec("./trails.cs");
    exec("./Player_Boost.cs");
    exec("./Horse_Boost.cs");
 }
