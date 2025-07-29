@@ -350,23 +350,3 @@ function servercmdLight(%cl) // light key to use stomp ability
       Parent::servercmdLight(%cl);
    }
 }
-
-function Player::applyDriftImpulse(%this)
-{
-   
-   %vel = vectorScale(%this.getVelocity(), 1);
-   announce(%vel);
-   %this.setVelocity(%vel);
-
-   %dir = vectorNormalize(%vel);
-   %input = vectorNormalize(%this.getEyeVector());
-   %blend = vectorAdd(vectorScale(%dir, 1), vectorScale(%input, 1));
-
-   %driftFactor = mClampF(%this.driftCounter / 18, 0, 1);
-   %force = vectorScale(%blend, 90 * %driftFactor);
-
-   //if (%this.slingCooldown > 0)
-      //%force = vectorScale(%force, 0.5);
-
-   %this.applyImpulse("0 0 0", %force);
-}
