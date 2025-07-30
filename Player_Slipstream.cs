@@ -13,7 +13,7 @@ datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
    driftStoredSpeed = 0;
    driftCounter = 0;
    slingCooldown = 0;
-   driftCounterLimit = 60;
+   driftCounterLimit = 50;
 
    canJet = false;
 
@@ -182,11 +182,13 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
          %obj.isDrifting = true;
          %obj.driftStoredSpeed = %obj.getSpeedInBPS();
          %obj.driftTick();
+         //%obj.playAudio(slipstreamDriftingSound, 2);
       }
       if(!%on)
       {
          %obj.unmountImage(1);
          %obj.isDrifting = false;
+         //%obj.stopAudio(2);
       }
    }
 
@@ -248,7 +250,6 @@ function Player::slingCooldownTick(%this) // schedule loop to decrement sling co
 function Player::driftTick(%this) // drift cooldown and timer, applying emitter logic
 {
    cancel(%this.driftTick);
-   announce(%this.driftCounterLimit);
    if (%this.getState() $= "Dead") 
    {
       %this.driftCounter = 0;
@@ -311,22 +312,18 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
    {
       %velVector = getWord(%this.getVelocity(), 0) SPC getWord(%this.getVelocity(), 1) SPC " 0"; // adjust vector to be purely horizontal
       %velSpeed = vectorLen(%velVector) * 2;
-      //announce("INITIAL" SPC %vel);
+      %this.setMaxCrouchForwardSpeed(%velSpeed / 2);
       %speedCap = 105;
-      if(%velSpeed > %this.driftStoredSpeed)
+      if(%velSpeed > %this.driftStoredSpeed || %velSpeed > %speedCap)
       {
          %this.setVelocity(vectorScale(%velVector, 0.95)); // decay speed if going too fast
          %velVector = getWord(%this.getVelocity(), 0) SPC getWord(%this.getVelocity(), 1) SPC " 0";
       }
-      if (%velSpeed > %speedCap)
-      {
-         %hit = %velVector;
-         //%vel = vectorScale(vectorNormalize(%velVector), %speedCap / 2); 
-         //announce("INITIAL" SPC %hit SPC "REVISED" SPC %vel);
-         //%this.setVelocity(%vel);
-         %this.setVelocity(vectorScale(%velVector, 0.95));
-      }
-      %force = vectorScale(%this.getEyeVector(), 150);
+      // if (%velSpeed > %speedCap)
+      // {
+      //    %this.setVelocity(vectorScale(%velVector, 0.95));
+      // }
+      %force = vectorScale(%this.getEyeVector(), 200);
       %this.applyImpulse("0 0 0", getWord(%force, 0) SPC getWord(%force, 1) SPC "0");
    }
 

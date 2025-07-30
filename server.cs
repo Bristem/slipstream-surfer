@@ -20,6 +20,7 @@ else
 {
    //exec("./Support_AltDatablock.cs");
    exec("./trails.cs");
+   exec("./sounds.cs");
    exec("./Player_Slipstream.cs");
    exec("./horsle.cs");
 }
