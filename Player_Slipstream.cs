@@ -47,6 +47,15 @@ function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
 
 	if (%this.getState() $= "Dead") 
 		return;
+   
+	if (!%this.isSurfing && !%this.startedSurfing && getSimTime() - %this.spawnTime >= 500) {
+		if (mAbs(getWord(%this.getVelocity(), 2)) >= 0.01) {
+			%this.isSurfing = 1;
+			%this.startedSurfing = 1;
+
+			%this.surfStartTime = getSimTime();
+		}
+	}
 
 	%max = 75;
 	%min = 25;
@@ -67,8 +76,12 @@ function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
 
          %text = %text NL "<font:lucida console:20>" SPC %dashcolor SPC "DASH " SPC "\c6/" SPC %slingcolor SPC "SLING";
 
+      if (%this.isSurfing) 
+      {
+			%time = getSimTime() - %this.surfStartTime;
+			%text = %text NL "\c6  TIME  <color:FFFFAA>" @ getTimeString(mFloatLength(%time / 1000, 2));
+      }
 		%factor = mClampF((%speed - %min) / (%max - %min), 0, 1) * 0.1;
-
 		commandToClient(%this.client, 'SetVignette', 1, %factor SPC %factor SPC %factor SPC %factor);
 		commandToClient(%this.client, 'BottomPrint', "<font:lucida console:19>" @ %text, 0.25, 1);
 	}

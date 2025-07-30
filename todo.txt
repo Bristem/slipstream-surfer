@@ -4,7 +4,15 @@ change sling logic to run on energy
     show energy bar
 adjust air dash to maintain speed if kept at relatively straight angles
 
+consider adjusting tick logics to just use simtime
+    or just using basic schedule
 
-design emitter
+
+design emitter and particles
+    attach aura after air dash and sling
+        maybe air dash burst projectile?  
+    projectile sphere explosion on sling
 
 design gamemode objects (spring, dash panel, boost ring)
+design prints (u turn)
+design extra emitters
