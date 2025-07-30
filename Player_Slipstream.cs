@@ -162,7 +162,7 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
       %obj.setVelocity("0 0 0");
       %obj.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 1300);
       %obj.playThread(3,jump);
-      %obj.playAudio(2, slipstreamAirdashSound);
+      %obj.playAudio(0, slipstreamAirdashSound);
 
       %scaleFactor = getWord(%obj.getScale(), 2);
       %data = pushBroomProjectile;
@@ -303,7 +303,7 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
          %scaleFactor = 0.9;
          %this.playAudio(1, slipstreamSlingReadySound);
       }
-      //%scaleFactor = getWord(%this.getScale(), 2) * 2;
+
       %data = boostBroomProjectile;
       %p = new Projectile()
       {
@@ -317,6 +317,7 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
       };
       %p.setScale(%scaleFactor SPC %scaleFactor SPC %scaleFactor);
       %p.explode();
+      
    }
 
    // drift turning

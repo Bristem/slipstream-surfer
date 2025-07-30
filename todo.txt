@@ -1,0 +1,10 @@
+adjust sound volumes (lower drift and dash)
+add sling boost sound logic (extend sound, run tick to end sound on slowdown, add mini boost sound)
+change sling logic to run on energy
+    show energy bar
+adjust air dash to maintain speed if kept at relatively straight angles
+
+
+design emitter
+
+design gamemode objects (spring, dash panel, boost ring)
