@@ -56,26 +56,26 @@ datablock ParticleData(boostAuraBaseParticle) {
 	windCoefficient = 0;
 
 	constantAcceleration = 0;
-	useInvAlpha = 0;
+	useInvAlpha = 1;
 	spinSpeed = 0;
 
-	lifetimeMS = 500;
+	lifetimeMS = 300;
 	lifetimeVarianceMS = 0;
 
 	spinRandomMin = 0;
 	spinRandomMax = 0;
 
-	colors[0] = "1 1 1 1";
-	colors[1] = "1 1 1 1";
-	colors[2] = "1 1 1 1";
+	colors[0] = "1 1 1 0.3";
+	colors[1] = "1 1 1 0";
+	colors[2] = "1 1 1 0";
 
-	sizes[0] = 2.5;
-	sizes[1] = 1.5;
+	sizes[0] = 3;
+	sizes[1] = 2;
 	sizes[2] = 0;
 
 	times[0] = 0;
-	times[1] = 0.25;
-	times[2] = 0.5;
+	times[1] = 0.9;
+	times[2] = 1;
 };
 
 datablock ParticleEmitterData(boostAuraBaseEmitter)
@@ -105,15 +105,19 @@ datablock ShapeBaseImageData(boostAuraBaseImage) {
 	emap = false;
 
 	mountPoint = 8;
-	offset = "0.3 0 1.25";
+	offset = "0 0 1.25";
 
 	stateName[0] = "Emit";
 	stateEmitter[0] = boostAuraBaseEmitter;
-	stateEmitterTime[0] = 10;
+	stateEmitterTime[0] = 1;
 	stateWaitForTimeout[0] = 1;
 	stateTransitionOnTimeout[0] = "Loop";
 
 	stateName[1] = "Loop";
-	stateTimeoutValue[1] = 0.001;
+	stateTimeoutValue[1] = 0.3;
 	stateTransitionOnTimeout[1] = "Emit";
+};
+
+datablock ShapeBaseImageData(boostAuraBaseCrouchImage : boostAuraBaseImage) {
+	offset = "0 0 -0.5";
 };
