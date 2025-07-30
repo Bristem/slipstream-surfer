@@ -13,7 +13,7 @@ datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
    driftStoredSpeed = 0;
    driftCounter = 0;
    slingCooldown = 0;
-   driftBaseMomentumVector = "0 0 0";
+   driftCounterLimit = 60;
 
    canJet = false;
 
@@ -21,7 +21,7 @@ datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
    boundingBox = "5 5 10.6";
 
    maxForwardSpeed = 100; // to get BPS, torque units multiplied by two, this max speed is 200
-   horizMaxSpeed = 100; // 
+   horizMaxSpeed = 100;
    maxForwardCrouchSpeed = 100;
 	maxBackwardSpeed = 80;
 	maxSideSpeed = 80;
@@ -35,6 +35,8 @@ datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
 function PlayerBoostArmor::onNewDataBlock(%this, %obj) 
 {
 	%obj.surfTick();
+   %obj.driftCounterLimit = %this.driftCounterLimit;
+
 }
 
 function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
@@ -69,16 +71,18 @@ function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
 		commandToClient(%this.client, 'BottomPrint', "<font:lucida console:19>" @ %text, 0.25, 1);
 	}
 
-   if (getSimTime() - %this.spawnTime > $Game::PlayerInvulnerabilityTime && getWord(%this.position, 2) < 0.3) // force respawn on ground
+   if (getSimTime() - %this.spawnTime > $Game::PlayerInvulnerabilityTime && getWord(%this.position, 2) < 0.3) // force respawn on ground plane
    {
-      if (isObject(%this.client)) 
-      {
-         %this.client.instantRespawn();
-      }
-      else 
-      {
-         %this.kill();
-      }
+      %this.kill();
+      // if (isObject(%this.client)) 
+      // {
+      //    %this.player.kill();
+      //    //%this.client.instantRespawn();
+      // }
+      // else 
+      // {
+      //    %this.kill();
+      // }
 
       return;
 	}
@@ -100,6 +104,8 @@ function Player::getSpeedInBPS(%this) // bricks per second, thanks to Buddy for 
 function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on) 
 {
    %r = Parent::onTrigger(%this,%obj,%slot,%on);
+   
+   
 
    if(%slot == 4 && %on) // jet air dash logic
    { 
@@ -109,16 +115,17 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
       {
          if(%obj.isDrifting && !(%obj.isAirborne()) && %obj.slingCooldown == 0)
          {
-            if(%obj.driftCounter < 18 && %obj.driftStoredSpeed > 70) // eighteen 30ms ticks, 520 ms
+            if(%obj.driftCounter < %obj.driftCounterLimit && %obj.driftStoredSpeed > 70)
             {
                %obj.driftStoredSpeed /= 3; // reduce speed if the drift is too low
             }
             %obj.unmountImage(1);
+            %obj.isDrifting = false;
             %boostVector = VectorScale(%obj.getEyeVector(), %obj.driftStoredSpeed * 60);
             %obj.setVelocity("0 0 0");
             %obj.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 15);
 
-            %scaleFactor = (%obj.driftStoredSpeed / 135) * (mPow(%obj.driftCounter / 18, 2)); // scale explosion from a total of max speed possible and max drift time
+            %scaleFactor = (%obj.driftStoredSpeed / 135) * (mPow(%obj.driftCounter / %obj.driftCounterLimit, 2)); // scale explosion from a total of max speed possible and max drift time
             %p = new Projectile()
             {
                dataBlock = boostExplosionProjectile;
@@ -136,7 +143,7 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
             %obj.slingCooldownTick();
             
          }
-         return %r;  
+         return %r;
       }
 
       %obj.hasBoosted = true;
@@ -174,9 +181,6 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
       {
          %obj.isDrifting = true;
          %obj.driftStoredSpeed = %obj.getSpeedInBPS();
-         //%obj.driftBaseDirection = vectorNormalize(%obj.getEyeVector());
-         //announce(%obj.driftBaseDirection);
-         //announce(%obj.getEyeVector());
          %obj.driftTick();
       }
       if(!%on)
@@ -244,6 +248,7 @@ function Player::slingCooldownTick(%this) // schedule loop to decrement sling co
 function Player::driftTick(%this) // drift cooldown and timer, applying emitter logic
 {
    cancel(%this.driftTick);
+   announce(%this.driftCounterLimit);
    if (%this.getState() $= "Dead") 
    {
       %this.driftCounter = 0;
@@ -260,13 +265,12 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
    {
       return;
    }
-
-   if(%this.isAirborne())
+   %isInAir = %this.isAirborne();
+   if(%isInAir)
    {
       %this.driftCounter = 0;
       %this.driftStoredSpeed = %this.getSpeedInBPS();
       %this.unmountImage(1);
-      %isInAir = true;
    }
    else
    {
@@ -277,11 +281,9 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
          %this.slingCooldown -= 1;
       }
       
-      if(%this.driftCounter < 18) // at low drift time
+      if(%this.driftCounter < %this.driftCounterLimit) // at low drift time
       {
          %this.driftCounter += 1;
-         
-
       }
       else if(%this.driftStoredSpeed > 50) // at high drift time AND high enough speed
       {
@@ -335,6 +337,7 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
 // TODO: add stomp emitter, make smoother, probably dont allow it on ground
 function servercmdLight(%cl) // light key to use stomp ability
 {
+   Parent::servercmdLight(%cl);
    %pl = %cl.player;
    if(isObject(%pl))
    {
@@ -344,13 +347,5 @@ function servercmdLight(%cl) // light key to use stomp ability
          %pl.setVelocity("0 0 0");
          %pl.applyImpulse("0 0 0", "0 0 -5000");
       }
-      else
-      {
-         Parent::servercmdLight(%cl);
-      }
-   }
-   else
-   {
-      Parent::servercmdLight(%cl);
    }
 }
