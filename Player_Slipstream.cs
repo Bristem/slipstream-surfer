@@ -13,7 +13,9 @@ datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
    driftStoredSpeed = 0;
    driftCounter = 0;
    slingCooldown = 0;
+
    driftCounterLimit = 50;
+   slingReady = false;
 
    canJet = false;
 
@@ -121,6 +123,7 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
             %obj.unmountImage(1);
             %obj.playAudio(1, slipstreamSlingshotSound);
             %obj.isDrifting = false;
+            %this.slingReady = false;
             %boostVector = VectorScale(%obj.getEyeVector(), %obj.driftStoredSpeed * 60);
             %obj.setVelocity("0 0 0");
             %obj.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 15);
@@ -159,6 +162,7 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
       %obj.setVelocity("0 0 0");
       %obj.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 1300);
       %obj.playThread(3,jump);
+      %obj.playAudio(2, slipstreamAirdashSound);
 
       %scaleFactor = getWord(%obj.getScale(), 2);
       %data = pushBroomProjectile;
@@ -252,6 +256,7 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
    if (%this.getState() $= "Dead") 
    {
       %this.driftCounter = 0;
+      %this.slingReady = false;
       %this.stopAudio(2);
       return;
 	}
@@ -259,6 +264,7 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
    if(!(%this.isDrifting))
    {
       %this.driftCounter = 0;
+      %this.slingReady = false;
       %this.stopAudio(2);
       return;
    }
@@ -275,6 +281,7 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
       %this.driftCounter = 0;
       %this.driftStoredSpeed = %this.getSpeedInBPS();
       %this.unmountImage(1);
+      %this.slingReady = false;
    }
    else
    {
@@ -289,10 +296,12 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
       {
          %this.driftCounter += 1;
       }
-      else if(%this.driftStoredSpeed > 50) // at high drift time AND high enough speed
+      else if(%this.driftStoredSpeed > 50 && !%this.slingReady) // at high drift time AND high enough speed
       {
+         %this.slingReady = true;
          %this.mountImage(boostFuseImage, 1);
          %scaleFactor = 0.9;
+         %this.playAudio(1, slipstreamSlingReadySound);
       }
       //%scaleFactor = getWord(%this.getScale(), 2) * 2;
       %data = boostBroomProjectile;

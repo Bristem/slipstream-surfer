@@ -23,6 +23,7 @@ datablock ProjectileData(boostExplosionProjectile) {
 datablock ExplosionData(boostBroomExplosion : tumbleImpactAExplosion)
 {
    soundProfile = "";
+   lifetimeMS = 35;
 };
 
 datablock ProjectileData(boostBroomProjectile : tumbleImpactAProjectile)
