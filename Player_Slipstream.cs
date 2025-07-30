@@ -100,7 +100,6 @@ function Player::getSpeedInBPS(%this) // bricks per second, thanks to Buddy for 
 
 // TODO: speed check and emitter for going fast, scales up, sound effect
 // TODO: mount temporary image on air dash and slingshot, plus sound
-// look into obj.playAudio(slot, sound)
 function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on) 
 {
    %r = Parent::onTrigger(%this,%obj,%slot,%on);
@@ -120,6 +119,7 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
                %obj.driftStoredSpeed /= 3; // reduce speed if the drift is too low
             }
             %obj.unmountImage(1);
+            %obj.playAudio(1, slipstreamSlingshotSound);
             %obj.isDrifting = false;
             %boostVector = VectorScale(%obj.getEyeVector(), %obj.driftStoredSpeed * 60);
             %obj.setVelocity("0 0 0");
@@ -182,13 +182,11 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
          %obj.isDrifting = true;
          %obj.driftStoredSpeed = %obj.getSpeedInBPS();
          %obj.driftTick();
-         //%obj.playAudio(slipstreamDriftingSound, 2);
       }
       if(!%on)
       {
          %obj.unmountImage(1);
          %obj.isDrifting = false;
-         //%obj.stopAudio(2);
       }
    }
 
@@ -250,25 +248,30 @@ function Player::slingCooldownTick(%this) // schedule loop to decrement sling co
 function Player::driftTick(%this) // drift cooldown and timer, applying emitter logic
 {
    cancel(%this.driftTick);
+   %this.playAudio(2, slipstreamDriftingSound);
    if (%this.getState() $= "Dead") 
    {
       %this.driftCounter = 0;
+      %this.stopAudio(2);
       return;
 	}
 	
    if(!(%this.isDrifting))
    {
       %this.driftCounter = 0;
+      %this.stopAudio(2);
       return;
    }
 
    if(%this.driftStoredSpeed < 25)
    {
+      %this.stopAudio(2);
       return;
    }
    %isInAir = %this.isAirborne();
    if(%isInAir)
    {
+      %this.stopAudio(2);
       %this.driftCounter = 0;
       %this.driftStoredSpeed = %this.getSpeedInBPS();
       %this.unmountImage(1);
