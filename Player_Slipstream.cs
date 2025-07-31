@@ -123,7 +123,7 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
    
    
 
-   if(%slot == 4 && %on) // jet air dash logic
+   if(%slot == 4 && %on) 
    { 
       if(%obj.hasBoosted)
          return %r;
@@ -163,6 +163,7 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
          }
          return %r;
       }
+      // jet air dash logic
 
       %obj.hasBoosted = true;
       %obj.airBoostTick();
@@ -178,6 +179,7 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
       %obj.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 1300);
       %obj.playThread(3,jump);
       %obj.playAudio(0, slipstreamAirdashSound);
+      %obj.mountImage(boostAuraBaseImage, 3);
 
       %scaleFactor = getWord(%obj.getScale(), 2);
       %data = pushBroomProjectile;
@@ -201,11 +203,21 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
          %obj.isDrifting = true;
          %obj.driftStoredSpeed = %obj.getSpeedInBPS();
          %obj.driftTick();
+
+         if(%obj.getMountedImage(3).getName() == "boostAuraBaseImage")
+         {
+            %obj.mountImage(boostAuraBaseCrouchImage, 3);
+         }
       }
       if(!%on)
       {
          %obj.unmountImage(1);
          %obj.isDrifting = false;
+
+         if(%obj.getMountedImage(3).getName() == "boostAuraBaseCrouchImage")
+         {
+            %obj.mountImage(boostAuraBaseImage, 3);
+         }
       }
    }
 

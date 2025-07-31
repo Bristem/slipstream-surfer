@@ -1,16 +1,22 @@
-adjust sound volumes (lower drift and dash)
 add sling boost sound logic (extend sound, run tick to end sound on slowdown, add mini boost sound)
 change sling logic to run on energy
     show energy bar
 adjust air dash to maintain speed if kept at relatively straight angles
 
+fix audio being weird in first person
+somethings weird with drift? laggy?
+fix aura flipping over when looking down (mountpoint?)
+
 consider adjusting tick logics to just use simtime
     or just using basic schedule
 
+aura logic 
+    replace crouch with a simple square datablock, mount to head
+    begin aura on boost
+    start using auraticks
 
-design emitter and particles
-    attach aura after air dash and sling
-        maybe air dash burst projectile?  
+
+design emitter and particles  
     projectile sphere explosion on sling
         gonna need dts animations
 
@@ -27,3 +33,4 @@ item system
     shop, currency
     setting trail and hats
     maybe setting sounds..
+object collision dll
