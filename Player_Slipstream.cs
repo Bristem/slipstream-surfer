@@ -4,6 +4,8 @@
 
 // Image slot 1 stores emitter for charged drift indicating slingshot readiness
 
+// todo: image slots, 0: drift trail, 1: sling ready, 3: aura
+
 datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
 {
    uiName = "Boost Surf Player";

@@ -12,7 +12,18 @@ design emitter and particles
     attach aura after air dash and sling
         maybe air dash burst projectile?  
     projectile sphere explosion on sling
+        gonna need dts animations
 
 design gamemode objects (spring, dash panel, boost ring)
 design prints (u turn)
 design extra emitters
+
+track system
+    loading
+    leaderboard
+    racing
+    nomination
+item system
+    shop, currency
+    setting trail and hats
+    maybe setting sounds..

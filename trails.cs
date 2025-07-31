@@ -121,3 +121,18 @@ datablock ShapeBaseImageData(boostAuraBaseImage) {
 datablock ShapeBaseImageData(boostAuraBaseCrouchImage : boostAuraBaseImage) {
 	offset = "0 0 -0.5";
 };
+
+datablock ParticleData(boostRingBurstParticle)
+{
+   dragCoefficient = 1;
+   gravityCoefficient = 0;
+   lifetimeMS = 500;
+   textureName = "base/data/particles/ring";
+   colors[0] = "1 1 1 0.5";
+   colors[1] = "1 1 1 0.1";
+   sizes[0] = 0.5;
+   sizes[1] = 2.0;
+   times[0] = 0;
+   times[1] = 1;
+   useInvAlpha = false;
+};
