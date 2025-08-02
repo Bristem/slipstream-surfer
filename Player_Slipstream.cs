@@ -198,11 +198,13 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
    }
    if(%slot == 3) // crouch drift
    {
+      %auraImage = %obj.getMountedImage(3).getName();
       if(%on)
       {
          %obj.isDrifting = true;
          %obj.driftStoredSpeed = %obj.getSpeedInBPS();
          %obj.driftTick();
+
 
          if(%obj.getMountedImage(3).getName() == "boostAuraBaseImage")
          {

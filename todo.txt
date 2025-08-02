@@ -1,34 +1,49 @@
-add sling boost sound logic (extend sound, run tick to end sound on slowdown, add mini boost sound)
-change sling logic to run on energy
-    show energy bar
-adjust air dash to maintain speed if kept at relatively straight angles
-
-fix audio being weird in first person
-somethings weird with drift? laggy?
-fix aura flipping over when looking down (mountpoint?)
-
-consider adjusting tick logics to just use simtime
-    or just using basic schedule
-
+-----priority-----
+design emitter and particles  
+    boost: emitter of laser aura that spread out more than the basic aura
+    projectile sphere explosion on sling
+        air ring particle trail
 aura logic 
     replace crouch with a simple square datablock, mount to head
     begin aura on boost
     start using auraticks
 
 
-design emitter and particles  
-    projectile sphere explosion on sling
-        gonna need dts animations
 
+-----secondary-----
+adjust air dash to maintain speed if kept at relatively straight angles
+add sling boost sound logic (extend sound, run tick to end sound on slowdown, add mini boost sound)
+change sling logic to run on energy
+    show energy bar
+consider adjusting tick logics to just use simtime
+    or just using basic schedule
+
+
+
+-----tertiary-----
+fix audio being weird in first person
+fix aura flipping over when looking down (mountpoint?)
+
+
+
+
+
+
+
+
+
+-----much later / needs some foundation-----
+ramp static shapes
+    optimize ramps script, load in static shapes for certain ramp bricks
 design gamemode objects (spring, dash panel, boost ring)
 design prints (u turn)
 design extra emitters
-
 track system
     loading
     leaderboard
     racing
     nomination
+    rtv (based on time and # completed)
 item system
     shop, currency
     setting trail and hats

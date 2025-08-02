@@ -65,7 +65,7 @@ datablock ParticleData(boostAuraBaseParticle) {
 	spinRandomMin = 0;
 	spinRandomMax = 0;
 
-	colors[0] = "1 1 1 0.2";
+	colors[0] = "1 1 1 0.15";
 	colors[1] = "1 1 1 0";
 	colors[2] = "1 1 1 0";
 
