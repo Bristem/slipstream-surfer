@@ -124,74 +124,16 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
    { 
       if(%obj.hasBoosted)
          return %r;
-      if(!%obj.isAirborne()) // sling shot logic
+      if(!%obj.isAirborne())
       {
          if(%obj.isDrifting && !(%obj.isAirborne()) && %obj.slingCooldown == 0)
          {
-            if(%obj.driftCounter < %obj.driftCounterLimit && %obj.driftStoredSpeed > 70)
-            {
-               %obj.driftStoredSpeed /= 3; // reduce speed if the drift is too low
-            }
-            %obj.unmountImage(1);
-            %obj.playAudio(1, slipstreamSlingshotSound);
-            %obj.isDrifting = false;
-            %this.slingReady = false;
-            %boostVector = VectorScale(%obj.getEyeVector(), %obj.driftStoredSpeed * 60);
-            %obj.setVelocity("0 0 0");
-            %obj.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 15);
-
-            %scaleFactor = (%obj.driftStoredSpeed / 135) * (mPow(%obj.driftCounter / %obj.driftCounterLimit, 2)); // scale explosion from a total of max speed possible and max drift time
-            %p = new Projectile()
-            {
-               dataBlock = boostExplosionProjectile;
-               initialPosition = %obj.getPosition();
-               initialVelocity = "0 0 -1";
-               sourceObject = %obj;
-               client = %obj.client;
-               sourceSlot = 0;
-               originPoint = %pos;
-            };
-            %p.setScale(%scaleFactor SPC %scaleFactor SPC %scaleFactor);
-            %p.explode();
-
-            %obj.slingCooldown = 166; 
-            %obj.slingCooldownTick();
-            
+            %obj.triggerSlingshot();
          }
          return %r;
       }
-      // jet air dash logic
 
-      %obj.hasBoosted = true;
-      %obj.airBoostTick();
-      %speed = %obj.getSpeedInBPS();
-      //if(%speed < 60) // speed limiter
-         //%impulse = 60;
-      //else if(%speed > 85)
-         //%impulse = 85;
-      //else %impulse = %speed;
-      %impulse = 45;
-      %boostVector = VectorScale(%obj.getEyeVector(), %impulse * 60); // 60 roughly matches given speed in BPS
-      %obj.setVelocity("0 0 0");
-      %obj.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 1300);
-      %obj.playThread(3,jump);
-      %obj.playAudio(0, slipstreamAirdashSound);
-      %obj.mountImage(boostAuraBaseImage, 3);
-
-      %scaleFactor = getWord(%obj.getScale(), 2);
-      %data = pushBroomProjectile;
-      %p = new Projectile()
-      {
-         dataBlock = %data;
-         initialPosition = %obj.getPosition();
-         initialVelocity = "0 0 -1";
-         sourceObject = %obj;
-         client = %obj.client;
-         sourceSlot = 0;
-         originPoint = %pos;
-      };
-      %p.setScale(%scaleFactor * 2 SPC %scaleFactor * 2 SPC %scaleFactor * 2);
-      %p.explode();
+      %obj.triggerAirDash();
    }
    if(%slot == 3) // crouch drift
    {
@@ -218,7 +160,6 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
                %obj.mountImage(boostAuraBaseCrouchImage, 3);
             }
          }
-         
       }
       if(!%on)
       {
@@ -233,6 +174,72 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
    }
 
    return %r;
+}
+
+function Player::triggerSlingshot(%this)
+{
+   if(%this.driftCounter < %this.driftCounterLimit && %this.driftStoredSpeed > 70)
+   {
+      %this.driftStoredSpeed /= 3; // reduce speed if the drift is too low
+   }
+   %this.unmountImage(1);
+   %this.playAudio(1, slipstreamSlingshotSound);
+   %this.isDrifting = false;
+   %this.slingReady = false;
+   %boostVector = VectorScale(%this.getEyeVector(), %this.driftStoredSpeed * 60);
+   %this.setVelocity("0 0 0");
+   %this.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 15);
+
+   %scaleFactor = (%this.driftStoredSpeed / 135) * (mPow(%this.driftCounter / %this.driftCounterLimit, 2)); // scale explosion from a total of max speed possible and max drift time
+   %p = new Projectile()
+   {
+      dataBlock = boostExplosionProjectile;
+      initialPosition = %this.getPosition();
+      initialVelocity = "0 0 -1";
+      sourceObject = %this;
+      client = %this.client;
+      sourceSlot = 0;
+      originPoint = %pos;
+   };
+   %p.setScale(%scaleFactor SPC %scaleFactor SPC %scaleFactor);
+   %p.explode();
+
+   %this.slingCooldown = 166; 
+   %this.slingCooldownTick();
+}
+
+function Player::triggerAirDash(%this)
+{
+   %this.hasBoosted = true;
+   %this.airBoostTick();
+   %speed = %this.getSpeedInBPS();
+   //if(%speed < 60) // speed limiter
+   //%impulse = 60;
+   //else if(%speed > 85)
+   //%impulse = 85;
+   //else %impulse = %speed;
+   %impulse = 45;
+   %boostVector = VectorScale(%this.getEyeVector(), %impulse * 60); // 60 roughly matches given speed in BPS
+   %this.setVelocity("0 0 0");
+   %this.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 1300);
+   %this.playThread(3,jump);
+   %this.playAudio(0, slipstreamAirdashSound);
+   %this.mountImage(boostAuraBaseImage, 3);
+
+   %scaleFactor = getWord(%this.getScale(), 2);
+   %data = pushBroomProjectile;
+   %p = new Projectile()
+   {
+   dataBlock = %data;
+   initialPosition = %this.getPosition();
+   initialVelocity = "0 0 -1";
+   sourceObject = %this;
+   client = %this.client;
+   sourceSlot = 0;
+   originPoint = %pos;
+   };
+   %p.setScale(%scaleFactor * 2 SPC %scaleFactor * 2 SPC %scaleFactor * 2);
+   %p.explode();
 }
 
 // Do not touch the ground plane with this active it does not like that
