@@ -1,4 +1,6 @@
 -----priority-----
+drifting stutter
+    due to setmaxcrouchforwardspeed, also not present in singleplayer?
 design emitter and particles  
     boost: emitter of laser aura that spread out more than the basic aura
     projectile sphere explosion on sling

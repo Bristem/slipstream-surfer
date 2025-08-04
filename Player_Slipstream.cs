@@ -9,15 +9,6 @@
 datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
 {
    uiName = "Boost Surf Player";
-   
-   hasBoosted = false;
-   isDrifting = false;
-   driftStoredSpeed = 0;
-   driftCounter = 0;
-   slingCooldown = 0;
-
-   driftCounterLimit = 50;
-   slingReady = false;
 
    canJet = false;
 
@@ -39,7 +30,15 @@ datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
 function PlayerBoostArmor::onNewDataBlock(%this, %obj) 
 {
 	%obj.surfTick();
-   %obj.driftCounterLimit = %this.driftCounterLimit;
+
+   %obj.hasBoosted = false;
+   %obj.isDrifting = false;
+   %obj.driftStoredSpeed = 0;
+   %obj.driftCounter = 0;
+   %obj.slingCooldown = 0;
+   %obj.slingReady = false;
+
+   %obj.driftCounterLimit = 50;
 
 }
 
@@ -107,7 +106,7 @@ function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
 	%this.surfTick = %this.schedule(50, surfTick);
 }
 
-function Player::getSpeedInBPS(%this) // bricks per second, thanks to Buddy for this
+function Player::getSpeedInBPS(%this, %obj) // bricks per second, thanks to Buddy for this
 {
    return vectorLen(%this.getVelocity()) * 2;
 }
@@ -120,8 +119,6 @@ function Player::getSpeedInBPS(%this) // bricks per second, thanks to Buddy for 
 function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on) 
 {
    %r = Parent::onTrigger(%this,%obj,%slot,%on);
-   
-   
 
    if(%slot == 4 && %on) 
    { 
@@ -198,25 +195,37 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
    }
    if(%slot == 3) // crouch drift
    {
-      %auraImage = %obj.getMountedImage(3).getName();
+      
+      if (%obj.getMountedImage(3) != 0)
+      {
+         %auraImage = %obj.getMountedImage(3).getName();
+         %hasAura = true;
+      }
+      else
+         %hasAura = false;
+
       if(%on)
       {
          %obj.isDrifting = true;
          %obj.driftStoredSpeed = %obj.getSpeedInBPS();
+         %obj.setMaxCrouchForwardSpeed(%obj.driftStoredSpeed / 2);
          %obj.driftTick();
 
-
-         if(%obj.getMountedImage(3).getName() == "boostAuraBaseImage")
+         if(%hasAura)
          {
-            %obj.mountImage(boostAuraBaseCrouchImage, 3);
+            if(%auraImage $= "boostAuraBaseImage")
+            {
+               %obj.mountImage(boostAuraBaseCrouchImage, 3);
+            }
          }
+         
       }
       if(!%on)
       {
          %obj.unmountImage(1);
          %obj.isDrifting = false;
 
-         if(%obj.getMountedImage(3).getName() == "boostAuraBaseCrouchImage")
+         if(%auraImage $= "boostAuraBaseCrouchImage")
          {
             %obj.mountImage(boostAuraBaseImage, 3);
          }
@@ -350,41 +359,40 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
    }
 
    // drift turning
-   if(!%isInAir && %this.slingCooldown < 140)
-   {
-      %velVector = getWord(%this.getVelocity(), 0) SPC getWord(%this.getVelocity(), 1) SPC " 0"; // adjust vector to be purely horizontal
-      %velSpeed = vectorLen(%velVector) * 2;
-      %this.setMaxCrouchForwardSpeed(%velSpeed / 2);
-      %speedCap = 105;
-      if(%velSpeed > %this.driftStoredSpeed || %velSpeed > %speedCap)
-      {
-         %this.setVelocity(vectorScale(%velVector, 0.95)); // decay speed if going too fast
-         %velVector = getWord(%this.getVelocity(), 0) SPC getWord(%this.getVelocity(), 1) SPC " 0";
-      }
-      // if (%velSpeed > %speedCap)
-      // {
-      //    %this.setVelocity(vectorScale(%velVector, 0.95));
-      // }
-      %force = vectorScale(%this.getEyeVector(), 200);
-      %this.applyImpulse("0 0 0", getWord(%force, 0) SPC getWord(%force, 1) SPC "0");
-   }
+   // if(!%isInAir && %this.slingCooldown < 140)
+   // {
+   //    %velVector = getWord(%this.getVelocity(), 0) SPC getWord(%this.getVelocity(), 1) SPC " 0"; // adjust vector to be purely horizontal
+   //    %velSpeed = vectorLen(%velVector) * 2;
+   //    %speedCap = 105;
+   //    if(%velSpeed > %this.driftStoredSpeed || %velSpeed > %speedCap)
+   //    {
+   //       %this.setVelocity(vectorScale(%velVector, 0.95)); // decay speed if going too fast
+   //       %velVector = getWord(%this.getVelocity(), 0) SPC getWord(%this.getVelocity(), 1) SPC " 0";
+   //    }
+   //    %force = vectorScale(%this.getEyeVector(), 200);
+   //    %this.applyImpulse("0 0 0", getWord(%force, 0) SPC getWord(%force, 1) SPC "0");
+   // }
 
 
    %this.driftTick = %this.schedule(30, driftTick);
 }
 
 // TODO: add stomp emitter, make smoother, probably dont allow it on ground
-function servercmdLight(%cl) // light key to use stomp ability
+package SlipstreamLightOverridePackage
 {
-   Parent::servercmdLight(%cl);
-   %pl = %cl.player;
-   if(isObject(%pl))
+   function servercmdLight(%cl) // light key to use stomp ability
    {
-      %armorName = %pl.getDataBlock().getName();
-      if (strstr(%armorName, "Boost") != -1)
+      %pl = %cl.player;
+      if(isObject(%pl))
       {
-         %pl.setVelocity("0 0 0");
-         %pl.applyImpulse("0 0 0", "0 0 -5000");
+         %armorName = %pl.getDataBlock().getName();
+         if (strstr(%armorName, "Boost") != -1)
+         {
+            %pl.setVelocity("0 0 0");
+            %pl.applyImpulse("0 0 0", "0 0 -5000");
+         }
+         else Parent::servercmdLight(%cl);
       }
    }
-}
+};
+activatePackage("SlipstreamLightOverridePackage");
