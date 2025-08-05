@@ -1,5 +1,5 @@
 // placeholder slingshot explosion boost
-datablock ExplosionData(boostExplosion : vehicleFinalExplosion)
+datablock ExplosionData(slipstreamExplosion : vehicleFinalExplosion)
 {
    directDamage      = 0;
    radiusDamage      = 0;
@@ -15,15 +15,15 @@ datablock ExplosionData(boostExplosion : vehicleFinalExplosion)
 // NOT WORK WITH EXPLOSIONS
 
 // its torque making explosions client sided
-datablock ProjectileData(boostExplosionProjectile) {
-   explosion      = boostExplosion;
+datablock ProjectileData(slipstreamExplosionProjectile) {
+   explosion      = slipstreamExplosion;
    muzzleVelocity = 0;
    lifetime       = 10;
 };
 
 // drift particles
 
-datablock ParticleEmitterData(boostDriftEmitter : vehicleBubbleEmitter)
+datablock ParticleEmitterData(slipstreamDriftEmitter : vehicleBubbleEmitter)
 {
 	lifetimeMS = 0;
 	ejectionOffset = 0.5;
@@ -31,7 +31,7 @@ datablock ParticleEmitterData(boostDriftEmitter : vehicleBubbleEmitter)
 	velocityVariance = 0.1;
 };
 
-datablock ShapeBaseImageData(boostDriftImage) 
+datablock ShapeBaseImageData(slipstreamDriftImage) 
 {
 	shapeFile   = "base/data/shapes/empty.dts";
 	emap        = false;
@@ -40,23 +40,23 @@ datablock ShapeBaseImageData(boostDriftImage)
 	mountpoint  = 3;
 
 	stateName[0]                  = "Ready";
-	stateEmitter[0]               = boostDriftEmitter;
+	stateEmitter[0]               = slipstreamDriftEmitter;
 	stateEmitterTime[0]           = 99;
 };
 
-datablock ParticleEmitterData(boostLongDriftEmitter : vehicleSplashEmitter)
+datablock ParticleEmitterData(slipstreamLongDriftEmitter : vehicleSplashEmitter)
 {
 	lifetimeMS = 0;
 };
 
-datablock ShapeBaseImageData(boostLongDriftImage : boostDriftImage)
+datablock ShapeBaseImageData(slipstreamLongDriftImage : slipstreamDriftImage)
 {
-	stateEmitter[0]	= boostLongDriftEmitter;
+	stateEmitter[0]	= slipstreamLongDriftEmitter;
 };
 
 // aura particles
 
-datablock ParticleData(boostAuraBaseParticle) {
+datablock ParticleData(slipstreamAuraBaseParticle) {
 	textureName = "./auraA";
 
 	dragCoefficient = 0;
@@ -87,10 +87,8 @@ datablock ParticleData(boostAuraBaseParticle) {
 	times[2] = 1;
 };
 
-datablock ParticleEmitterData(boostAuraBaseEmitter)
+datablock ParticleEmitterData(slipstreamAuraBaseEmitter)
 {
-	uiName = "Boost Aura Base";
-
 	ejectionPeriodMS = 15;
 	periodVarianceMS = 0;
 
@@ -106,10 +104,10 @@ datablock ParticleEmitterData(boostAuraBaseEmitter)
 	phiReferenceVel = 0;
 	phiVariance = 0;
 
-	particles = boostAuraBaseParticle;
+	particles = slipstreamAuraBaseParticle;
 };
 
-datablock ShapeBaseImageData(boostAuraBaseImage) {
+datablock ShapeBaseImageData(slipstreamAuraBaseImage) {
 	shapeFile = "base/data/shapes/empty.dts";
 	emap = false;
 
@@ -117,7 +115,7 @@ datablock ShapeBaseImageData(boostAuraBaseImage) {
 	offset = "0 0 1.25";
 
 	stateName[0] = "Emit";
-	stateEmitter[0] = boostAuraBaseEmitter;
+	stateEmitter[0] = slipstreamAuraBaseEmitter;
 	stateEmitterTime[0] = 1;
 	stateWaitForTimeout[0] = 1;
 	stateTransitionOnTimeout[0] = "Loop";
@@ -127,7 +125,7 @@ datablock ShapeBaseImageData(boostAuraBaseImage) {
 	stateTransitionOnTimeout[1] = "Emit";
 };
 
-datablock ShapeBaseImageData(boostAuraBaseCrouchImage : boostAuraBaseImage) {
+datablock ShapeBaseImageData(slipstreamAuraBaseCrouchImage : slipstreamAuraBaseImage) {
 	offset = "0 0 -0.5";
 };
 
@@ -137,7 +135,7 @@ datablock ParticleEmitterData (slipstreamBoostTrailEmitter : vehicleBubbleEmitte
 	lifetimeMS = 0;
 };
 
-datablock ShapeBaseImageData(slipstreamBoostTrailImage : boostDriftImage)
+datablock ShapeBaseImageData(slipstreamBoostTrailImage : slipstreamDriftImage)
 {
 	stateEmitter[0]	= slipstreamBoostTrailEmitter;
 	offset = "0 1 1.5";

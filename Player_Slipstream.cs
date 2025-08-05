@@ -158,9 +158,9 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
 
          if(%hasAura)
          {
-            if(%auraImage $= "boostAuraBaseImage")
+            if(%auraImage $= "slipstreamAuraBaseImage")
             {
-               %obj.mountImage(boostAuraBaseCrouchImage, 3);
+               %obj.mountImage(slipstreamAuraBaseCrouchImage, 3);
             }
          }
       }
@@ -170,9 +170,9 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
 
          if(%hasAura)
          {
-            if(%auraImage $= "boostAuraBaseCrouchImage")
+            if(%auraImage $= "slipstreamAuraBaseCrouchImage")
             {
-               %obj.mountImage(boostAuraBaseImage, 3);
+               %obj.mountImage(slipstreamAuraBaseImage, 3);
             }
          }
       }
@@ -197,7 +197,7 @@ function Player::triggerAirDash(%this)
    %this.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 1300);
    %this.playThread(3,jump);
    %this.playAudio(0, slipstreamAirdashSound);
-   %this.mountImage(boostAuraBaseImage, 3);
+   %this.mountImage(slipstreamAuraBaseImage, 3);
 
    %scaleFactor = getWord(%this.getScale(), 2);
    %data = pushBroomProjectile;
@@ -232,7 +232,7 @@ function Player::triggerSlingshot(%this)
    %scaleFactor = (%this.driftStoredSpeed / 135) * (mPow(%this.driftCounter / %this.driftCounterLimit, 2)); // scale explosion from a total of max speed possible and max drift time
    %p = new Projectile()
    {
-      dataBlock = boostExplosionProjectile;
+      dataBlock = slipstreamExplosionProjectile;
       initialPosition = %this.getPosition();
       initialVelocity = "0 0 -1";
       sourceObject = %this;
@@ -351,13 +351,13 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
       else if(%this.driftStoredSpeed > 50 && !%this.slingReady) // at high drift time AND high enough speed
       {
          %this.slingReady = true;
-         %this.mountImage(boostLongDriftImage, 1);
+         %this.mountImage(slipstreamLongDriftImage, 1);
          %scaleFactor = 0.9;
          %this.playAudio(1, slipstreamSlingReadySound);
       }
 
       if(!%this.slingReady)
-         %this.mountImage(boostDriftImage, 1);
+         %this.mountImage(slipstreamDriftImage, 1);
    }
 
    // drift turning

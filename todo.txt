@@ -1,16 +1,9 @@
 -----priority-----
 
-playerjetemitter
-playerjetgroundemitter
-playersootemitter
-vehicletireemitter
-vehiclesplashmistemitter
-vehiclebubbleemitter
-vehiclefoamdropletsemitter
-vehiclesplashemitter
-
 VEHICLE BUBBLES CAN BE A TEMPLATE FOR BOOST AURA
-
+fix emitters    
+    drift emitters still not close to feet
+    finalize boost emitter
 aura logic 
     replace crouch with a simple square datablock, mount to head
     begin aura on boost
