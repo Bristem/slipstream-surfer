@@ -222,6 +222,8 @@ function Player::triggerSlingshot(%this)
       %this.driftStoredSpeed /= 3; // reduce speed if the drift is too low
    }
    %this.unmountImage(1);
+   %this.mountImage(slipstreamBoostTrailImage, 0);
+   %this.schedule(2000, unmountImage(0));
    %this.playAudio(1, slipstreamSlingshotSound);
    %this.isDrifting = false;
    %this.slingReady = false;

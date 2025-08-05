@@ -1,22 +1,24 @@
 -----priority-----
-
-VEHICLE BUBBLES CAN BE A TEMPLATE FOR BOOST AURA
-fix emitters    
-    drift emitters still not close to feet
+fix emitters  
     finalize boost emitter
+
 aura logic 
-    replace crouch with a simple square datablock, mount to head
+    replace crouch with a simple square datablock, mount to body
+        mount base aura to body too? need to stop it flipping over
     begin aura on boost
     start using auraticks
+
 change sling logic to run on energy
     show energy bar
     consider adjusting tick logics to just use simtime
         or just using basic schedule
+
 emitter and particles  
     replace drift projectile spam with image and emitter, maybe burnemittera
     boost: emitter of laser aura that spread out more than the basic aura
     projectile sphere explosion on sling
         air ring particle trail
+
 
 
 -----secondary-----
@@ -28,7 +30,6 @@ add sling boost sound logic (extend sound, run tick to end sound on slowdown, ad
 
 -----tertiary-----
 fix audio being weird in first person
-fix aura flipping over when looking down (mountpoint?)
 drifting stutter
     due to setmaxcrouchforwardspeed, also not present in singleplayer?
     i dont know it just kind of happens randomly

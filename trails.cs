@@ -1,9 +1,10 @@
 // placeholder slingshot explosion boost
-datablock ExplosionData(slipstreamExplosion : vehicleFinalExplosion)
+datablock ExplosionData(slipstreamExplosion : rocketExplosion)
 {
-   directDamage      = 0;
-   radiusDamage      = 0;
-   damageRadius      = 0;
+   soundProfile 	= "";
+   directDamage		= 0;
+   radiusDamage		= 0;
+   damageRadius		= 0;
 
    camShakeDuration  = 0.3;
    camShakeFalloff   = 2;
@@ -36,7 +37,7 @@ datablock ShapeBaseImageData(slipstreamDriftImage)
 	shapeFile   = "base/data/shapes/empty.dts";
 	emap        = false;
 
-	offset      = "-0.1 0 -0.5";
+	offset      = "-0.3 0 -0.1";
 	mountpoint  = 3;
 
 	stateName[0]                  = "Ready";
