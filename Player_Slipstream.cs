@@ -4,7 +4,7 @@
 
 // Image slot 1 stores emitter for charged drift indicating slingshot readiness
 
-// todo: image slots, 0: drift trail, 1: sling ready, 3: aura
+// todo: image slots, 1: drift trail, 2: hats, 3: aura
 
 datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
 {
@@ -17,7 +17,7 @@ datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
 
    maxForwardSpeed = 100; // to get BPS, torque units multiplied by two, this max speed is 200
    horizMaxSpeed = 100;
-   maxForwardCrouchSpeed = 100;
+   maxForwardCrouchSpeed = 50;
 	maxBackwardSpeed = 80;
 	maxSideSpeed = 80;
 
@@ -120,7 +120,8 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
 {
    %r = Parent::onTrigger(%this,%obj,%slot,%on);
 
-   if(%slot == 4 && %on) 
+
+   if(%slot == 4 && %on) // right click / jet
    { 
       if(%obj.hasBoosted)
          return %r;
@@ -135,7 +136,9 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
 
       %obj.triggerAirDash();
    }
-   if(%slot == 3) // crouch drift
+
+
+   if(%slot == 3) // crouch 
    {
       
       if (%obj.getMountedImage(3) != 0)
@@ -150,7 +153,7 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
       {
          %obj.isDrifting = true;
          %obj.driftStoredSpeed = %obj.getSpeedInBPS();
-         %obj.setMaxCrouchForwardSpeed(%obj.driftStoredSpeed / 2);
+         cancel(%obj.driftTick);
          %obj.driftTick();
 
          if(%hasAura)
@@ -163,49 +166,19 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
       }
       if(!%on)
       {
-         %obj.unmountImage(1);
          %obj.isDrifting = false;
 
-         if(%auraImage $= "boostAuraBaseCrouchImage")
+         if(%hasAura)
          {
-            %obj.mountImage(boostAuraBaseImage, 3);
+            if(%auraImage $= "boostAuraBaseCrouchImage")
+            {
+               %obj.mountImage(boostAuraBaseImage, 3);
+            }
          }
       }
    }
 
    return %r;
-}
-
-function Player::triggerSlingshot(%this)
-{
-   if(%this.driftCounter < %this.driftCounterLimit && %this.driftStoredSpeed > 70)
-   {
-      %this.driftStoredSpeed /= 3; // reduce speed if the drift is too low
-   }
-   %this.unmountImage(1);
-   %this.playAudio(1, slipstreamSlingshotSound);
-   %this.isDrifting = false;
-   %this.slingReady = false;
-   %boostVector = VectorScale(%this.getEyeVector(), %this.driftStoredSpeed * 60);
-   %this.setVelocity("0 0 0");
-   %this.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 15);
-
-   %scaleFactor = (%this.driftStoredSpeed / 135) * (mPow(%this.driftCounter / %this.driftCounterLimit, 2)); // scale explosion from a total of max speed possible and max drift time
-   %p = new Projectile()
-   {
-      dataBlock = boostExplosionProjectile;
-      initialPosition = %this.getPosition();
-      initialVelocity = "0 0 -1";
-      sourceObject = %this;
-      client = %this.client;
-      sourceSlot = 0;
-      originPoint = %pos;
-   };
-   %p.setScale(%scaleFactor SPC %scaleFactor SPC %scaleFactor);
-   %p.explode();
-
-   %this.slingCooldown = 166; 
-   %this.slingCooldownTick();
 }
 
 function Player::triggerAirDash(%this)
@@ -240,6 +213,38 @@ function Player::triggerAirDash(%this)
    };
    %p.setScale(%scaleFactor * 2 SPC %scaleFactor * 2 SPC %scaleFactor * 2);
    %p.explode();
+}
+
+function Player::triggerSlingshot(%this)
+{
+   if(%this.driftCounter < %this.driftCounterLimit && %this.driftStoredSpeed > 70)
+   {
+      %this.driftStoredSpeed /= 3; // reduce speed if the drift is too low
+   }
+   %this.unmountImage(1);
+   %this.playAudio(1, slipstreamSlingshotSound);
+   %this.isDrifting = false;
+   %this.slingReady = false;
+   %boostVector = VectorScale(%this.getEyeVector(), %this.driftStoredSpeed * 60);
+   %this.setVelocity("0 0 0");
+   %this.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 15);
+
+   %scaleFactor = (%this.driftStoredSpeed / 135) * (mPow(%this.driftCounter / %this.driftCounterLimit, 2)); // scale explosion from a total of max speed possible and max drift time
+   %p = new Projectile()
+   {
+      dataBlock = boostExplosionProjectile;
+      initialPosition = %this.getPosition();
+      initialVelocity = "0 0 -1";
+      sourceObject = %this;
+      client = %this.client;
+      sourceSlot = 0;
+      originPoint = %pos;
+   };
+   %p.setScale(%scaleFactor SPC %scaleFactor SPC %scaleFactor);
+   %p.explode();
+
+   %this.slingCooldown = 166; 
+   %this.slingCooldownTick();
 }
 
 // Do not touch the ground plane with this active it does not like that
@@ -297,7 +302,7 @@ function Player::slingCooldownTick(%this) // schedule loop to decrement sling co
 function Player::driftTick(%this) // drift cooldown and timer, applying emitter logic
 {
    cancel(%this.driftTick);
-   %this.playAudio(2, slipstreamDriftingSound);
+   
    if (%this.getState() $= "Dead") 
    {
       %this.driftCounter = 0;
@@ -311,6 +316,7 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
       %this.driftCounter = 0;
       %this.slingReady = false;
       %this.stopAudio(2);
+      %this.unmountImage(1);
       return;
    }
 
@@ -332,6 +338,7 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
    {
       %isInAir = false;
       %scaleFactor = 0.4;
+      %this.playAudio(2, slipstreamDriftingSound);
       if(%this.slingCooldown > 0)
       {
          %this.slingCooldown -= 1;
@@ -344,44 +351,37 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
       else if(%this.driftStoredSpeed > 50 && !%this.slingReady) // at high drift time AND high enough speed
       {
          %this.slingReady = true;
-         %this.mountImage(boostFuseImage, 1);
+         %this.mountImage(boostLongDriftImage, 1);
          %scaleFactor = 0.9;
          %this.playAudio(1, slipstreamSlingReadySound);
       }
 
-      %data = boostBroomProjectile;
-      %p = new Projectile()
-      {
-         dataBlock = %data;
-         initialPosition = %this.getPosition();
-         initialVelocity = "0 0 -1";
-         sourceObject = %this;
-         client = %this.client;
-         sourceSlot = 0;
-         originPoint = %this.getPosition();
-      };
-      %p.setScale(%scaleFactor SPC %scaleFactor SPC %scaleFactor);
-      %p.explode();
-      
+      if(!%this.slingReady)
+         %this.mountImage(boostDriftImage, 1);
    }
 
    // drift turning
-   // if(!%isInAir && %this.slingCooldown < 140)
-   // {
-   //    %velVector = getWord(%this.getVelocity(), 0) SPC getWord(%this.getVelocity(), 1) SPC " 0"; // adjust vector to be purely horizontal
-   //    %velSpeed = vectorLen(%velVector) * 2;
-   //    %speedCap = 105;
-   //    if(%velSpeed > %this.driftStoredSpeed || %velSpeed > %speedCap)
-   //    {
-   //       %this.setVelocity(vectorScale(%velVector, 0.95)); // decay speed if going too fast
-   //       %velVector = getWord(%this.getVelocity(), 0) SPC getWord(%this.getVelocity(), 1) SPC " 0";
-   //    }
-   //    %force = vectorScale(%this.getEyeVector(), 200);
-   //    %this.applyImpulse("0 0 0", getWord(%force, 0) SPC getWord(%force, 1) SPC "0");
-   // }
+   if(!%isInAir && %this.slingCooldown < 140)
+   {
+      %velVector = %this.getHorizontalVelocityVector();
+      %velSpeed = vectorLen(%velVector) * 2;
+      %speedCap = 105;
+      if(%velSpeed > %this.driftStoredSpeed || %velSpeed > %speedCap)
+      {
+         %velVector = %this.getHorizontalVelocityVector();
+         %this.setVelocity(vectorScale(%velVector, 0.90)); // decay speed if going too fast
+      }
+      %force = vectorScale(%this.getEyeVector(), 200);
+      %this.applyImpulse("0 0 0", getWord(%force, 0) SPC getWord(%force, 1) SPC "0");
+   }
 
 
-   %this.driftTick = %this.schedule(30, driftTick);
+   %this.driftTick = %this.schedule(40, driftTick);
+}
+
+function Player::getHorizontalVelocityVector(%this)
+{
+   return getWord(%this.getVelocity(), 0) SPC getWord(%this.getVelocity(), 1) SPC " 0";
 }
 
 // TODO: add stomp emitter, make smoother, probably dont allow it on ground

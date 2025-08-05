@@ -13,39 +13,48 @@ datablock ExplosionData(boostExplosion : vehicleFinalExplosion)
 // im going to find whoever made this necessary
 // why does the function called spawnexplosion
 // NOT WORK WITH EXPLOSIONS
+
+// its torque making explosions client sided
 datablock ProjectileData(boostExplosionProjectile) {
    explosion      = boostExplosion;
    muzzleVelocity = 0;
    lifetime       = 10;
 };
 
-// broom particles
-datablock ExplosionData(boostBroomExplosion : tumbleImpactAExplosion)
+// drift particles
+
+datablock ParticleEmitterData(boostDriftEmitter : vehicleBubbleEmitter)
 {
-   soundProfile = "";
-   lifetimeMS = 35;
+	lifetimeMS = 0;
+	ejectionOffset = 0.5;
+	ejectionVelocity = 0.1;
+	velocityVariance = 0.1;
 };
 
-datablock ProjectileData(boostBroomProjectile : tumbleImpactAProjectile)
+datablock ShapeBaseImageData(boostDriftImage) 
 {
-   explosion = boostBroomExplosion;
-};
-
-//placeholder slingshot charge emitter, replace later with road drif particles r something
-datablock ShapeBaseImageData(boostFuseImage) 
-{
-   uiName      = "Boost Fuse";
-
-   shapeFile   = "base/data/shapes/empty.dts";
+	shapeFile   = "base/data/shapes/empty.dts";
 	emap        = false;
 
-   offset      = "0 0 -1.8"; // slightly below player feet
-   mountpoint  = 2;
+	offset      = "-0.1 0 -0.5";
+	mountpoint  = 3;
 
 	stateName[0]                  = "Ready";
-	stateEmitter[0]               = cannonFuseCEmitter;
+	stateEmitter[0]               = boostDriftEmitter;
 	stateEmitterTime[0]           = 99;
 };
+
+datablock ParticleEmitterData(boostLongDriftEmitter : vehicleSplashEmitter)
+{
+	lifetimeMS = 0;
+};
+
+datablock ShapeBaseImageData(boostLongDriftImage : boostDriftImage)
+{
+	stateEmitter[0]	= boostLongDriftEmitter;
+};
+
+// aura particles
 
 datablock ParticleData(boostAuraBaseParticle) {
 	textureName = "./auraA";
@@ -80,9 +89,9 @@ datablock ParticleData(boostAuraBaseParticle) {
 
 datablock ParticleEmitterData(boostAuraBaseEmitter)
 {
-   uiName = "Boost Aura Base";
-   
-   ejectionPeriodMS = 15;
+	uiName = "Boost Aura Base";
+
+	ejectionPeriodMS = 15;
 	periodVarianceMS = 0;
 
 	ejectionVelocity = 0;
@@ -97,7 +106,7 @@ datablock ParticleEmitterData(boostAuraBaseEmitter)
 	phiReferenceVel = 0;
 	phiVariance = 0;
 
-   particles = boostAuraBaseParticle;
+	particles = boostAuraBaseParticle;
 };
 
 datablock ShapeBaseImageData(boostAuraBaseImage) {
@@ -122,17 +131,15 @@ datablock ShapeBaseImageData(boostAuraBaseCrouchImage : boostAuraBaseImage) {
 	offset = "0 0 -0.5";
 };
 
-datablock ParticleData(boostRingBurstParticle)
+// boost visuals
+datablock ParticleEmitterData (slipstreamBoostTrailEmitter : vehicleBubbleEmitter)
 {
-   dragCoefficient = 1;
-   gravityCoefficient = 0;
-   lifetimeMS = 500;
-   textureName = "base/data/particles/ring";
-   colors[0] = "1 1 1 0.5";
-   colors[1] = "1 1 1 0.1";
-   sizes[0] = 0.5;
-   sizes[1] = 2.0;
-   times[0] = 0;
-   times[1] = 1;
-   useInvAlpha = false;
+	lifetimeMS = 0;
+};
+
+datablock ShapeBaseImageData(slipstreamBoostTrailImage : boostDriftImage)
+{
+	stateEmitter[0]	= slipstreamBoostTrailEmitter;
+	offset = "0 1 1.5";
+	mountPoint = 8;
 };

@@ -32,7 +32,7 @@ else
 BrickTreasureChestData.isSurfTrack = 1;
 BrickTreasureChestOpenData.isSurfTrack = 1;
 
-package TempGameModePackage
+package TempSlipstreamTimerPackage
 {
    function FxDTSBrick::onPlayerTouch(%this, %obj)
    {
@@ -55,4 +55,4 @@ package TempGameModePackage
 	}
 };
 
-activatePackage("TempGameModePackage");
+activatePackage("TempSlipstreamTimerPackage");

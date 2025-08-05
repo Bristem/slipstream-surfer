@@ -1,30 +1,44 @@
 -----priority-----
-drifting stutter
-    due to setmaxcrouchforwardspeed, also not present in singleplayer?
-design emitter and particles  
-    boost: emitter of laser aura that spread out more than the basic aura
-    projectile sphere explosion on sling
-        air ring particle trail
+
+playerjetemitter
+playerjetgroundemitter
+playersootemitter
+vehicletireemitter
+vehiclesplashmistemitter
+vehiclebubbleemitter
+vehiclefoamdropletsemitter
+vehiclesplashemitter
+
+VEHICLE BUBBLES CAN BE A TEMPLATE FOR BOOST AURA
+
 aura logic 
     replace crouch with a simple square datablock, mount to head
     begin aura on boost
     start using auraticks
-
+change sling logic to run on energy
+    show energy bar
+    consider adjusting tick logics to just use simtime
+        or just using basic schedule
+emitter and particles  
+    replace drift projectile spam with image and emitter, maybe burnemittera
+    boost: emitter of laser aura that spread out more than the basic aura
+    projectile sphere explosion on sling
+        air ring particle trail
 
 
 -----secondary-----
 adjust air dash to maintain speed if kept at relatively straight angles
 add sling boost sound logic (extend sound, run tick to end sound on slowdown, add mini boost sound)
-change sling logic to run on energy
-    show energy bar
-consider adjusting tick logics to just use simtime
-    or just using basic schedule
+
 
 
 
 -----tertiary-----
 fix audio being weird in first person
 fix aura flipping over when looking down (mountpoint?)
+drifting stutter
+    due to setmaxcrouchforwardspeed, also not present in singleplayer?
+    i dont know it just kind of happens randomly
 
 
 
