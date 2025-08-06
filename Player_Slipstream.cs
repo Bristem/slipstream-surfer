@@ -165,9 +165,21 @@ function Player::triggerAirDash(%this)
    %this.hasBoosted = true;
    %this.airBoostTick();
 
-   %speed = %this.getSpeedInBPS();
-   %impulse = 45;
-   %boostVector = VectorScale(%this.getEyeVector(), %impulse * 60); // 60 roughly matches given speed in BPS
+   
+   // angle difference between velocity and player cam direction
+   %velocityVector = vectorNormalize(%this.getHorizontalVelocityVector());
+   %eyeVector = vectorNormalize(getWord(%this.getEyeVector(), 0) SPC getWord(%this.getEyeVector(), 1) SPC "0");
+   %angleBetween = getAngleBetweenVectors(%velocityVector, %eyeVector) * (180 / $pi); // work in degrees pls
+
+   if(%angleBetween > 10 || %this.getSpeedInBPS() < 60)
+   {
+      %impulse = 50 * 60; // 60 roughly the scale we need to match 50 BPS
+   }                      // this will change if you mess with runforce or drag or some other thing,,, i think,,, i dont know i cant remember
+   else
+   {
+      %impulse = %this.getSpeedInBPS() * 60;
+   }
+   %boostVector = VectorScale(%this.getEyeVector(), %impulse);
    %this.setVelocity("0 0 0");
    %this.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 1300);
 
@@ -193,6 +205,12 @@ function Player::triggerAirDash(%this)
    };
    %p.setScale(%scaleFactor * 2 SPC %scaleFactor * 2 SPC %scaleFactor * 2);
    %p.explode();
+}
+
+function getAngleBetweenVectors(%vecA, %vecB)
+{
+   %dot = vectorDot(%vecA, %vecB);
+   return mAcos(%dot);
 }
 
 function Player::triggerSlingshot(%this)
@@ -296,7 +314,7 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
       %this.stopAudio(2);
       return;
    }
-   
+
    %isInAir = %this.isAirborne();
    if(%isInAir)
    {
