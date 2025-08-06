@@ -2,9 +2,7 @@
 // raycast check for airborne just completely breaks and lags the server when sportsballs are enabled. may be some other conflict with modded modter addon but everything fixed when sports werent on
 // i dont know why and i dont care to know yet
 
-// Image slot 1 stores emitter for charged drift indicating slingshot readiness
-
-// todo: image slots, 1: drift trail, 2: hats, 3: aura
+// image slots. 0: slingshot boost, 1: drift trail, 2: hats, 3: aura
 
 datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
 {
@@ -66,10 +64,10 @@ function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
    {
 		%speed = %this.getSpeedInBPS();
 
-      // if(%speed > 130 && isEventPending(%this.auraTick) == 0)
-      // { 
-      //    %this.auraTick();
-      // }
+      if(%speed > 130 && isEventPending(%this.auraTick) == 0)
+      { 
+          %this.auraTick();
+      }
 
 		%text = "\c6  SPEED <color:FFFFAA> " @ mFloatLength(%speed, 0) SPC "BPS";
       if(%this.hasBoosted)
