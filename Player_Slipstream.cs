@@ -9,6 +9,9 @@ datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
    uiName = "Boost Surf Player";
 
    canJet = false;
+   showEnergyBar = true;
+   maxEnergy = 100;
+   rechargeRate = 1; // 3 second recharge
 
    mass = 120;
    boundingBox = "5 5 10.6";
@@ -33,12 +36,9 @@ function PlayerBoostArmor::onNewDataBlock(%this, %obj)
    %obj.isDrifting = false;
    %obj.driftStoredSpeed = 0;
    %obj.driftCounter = 0;
-   %obj.slingCooldown = 0;
-   %obj.slingReady = false;
    %obj.auraImage = "0";
 
-   %obj.driftCounterLimit = 20;
-
+   %obj.driftCounterLimit = 30;
 }
 
 function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
@@ -47,7 +47,7 @@ function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
 
 	if(%this.getState() $= "Dead") 
 		return;
-   
+
 	if(!%this.isSurfing && !%this.startedSurfing && getSimTime() - %this.spawnTime >= 500) {
 		if(mAbs(getWord(%this.getVelocity(), 2)) >= 0.01) {
 			%this.isSurfing = 1;
@@ -70,17 +70,6 @@ function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
       }
 
 		%text = "\c6  SPEED <color:FFFFAA> " @ mFloatLength(%speed, 0) SPC "BPS";
-      if(%this.hasBoosted)
-         %dashcolor = "<color:a0a0a0>"; // dash on cooldown display
-      else
-         %dashcolor = "\c4";
-
-      if(%this.slingCooldown != 0)
-         %slingcolor = "<color:a0a0a0>";
-      else 
-         %slingcolor = "\c4";
-
-         %text = %text NL "<font:lucida console:20>" SPC %dashcolor SPC "DASH " SPC "\c6/" SPC %slingcolor SPC "SLING";
 
       if(%this.isSurfing) 
       {
@@ -132,7 +121,7 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
          return %r;
       if(!%obj.isAirborne())
       {
-         if(%obj.isDrifting && !(%obj.isAirborne()) && %obj.slingCooldown == 0)
+         if(%obj.isDrifting && !(%obj.isAirborne()) && %obj.getEnergyPercent() == 1)
          {
             %obj.triggerSlingshot();
          }
@@ -218,9 +207,13 @@ function Player::triggerSlingshot(%this)
    %this.unmountImage(1);
    %this.mountImage(slipstreamBoostTrailImage, 0);
    %this.schedule(1000, "unmountImage", 0);
+
    %this.playAudio(1, slipstreamSlingshotSound);
+
    %this.isDrifting = false;
    %this.slingReady = false;
+   %this.setEnergyLevel(0);
+
    %boostVector = VectorScale(%this.getEyeVector(), %this.driftStoredSpeed * 60);
    %this.setVelocity("0 0 0");
    %this.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 15);
@@ -283,23 +276,6 @@ function Player::airBoostTick(%this)  // tick check to see if we are still airbo
    %this.airBoostTick = %this.schedule(30, airBoostTick);
 }
 
-function Player::slingCooldownTick(%this) // schedule loop to decrement sling cooldown
-{
-   cancel(%this.slingCooldownTick);
-   if(%this.getState() $= "Dead") 
-   {
-      %this.slingCooldown = 0;
-      return;
-	}
-   if(%this.slingCooldown <= 0)
-   {
-      return;
-   }
-   %this.slingCooldown -= 1;
-
-   %this.slingCooldownTick = %this.schedule(30, slingCooldownTick);
-}
-
 function Player::driftTick(%this) // drift cooldown and timer, applying emitter logic
 {
    cancel(%this.driftTick);
@@ -349,7 +325,7 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
       {
          %this.driftCounter += 1;
       }
-      else if(%this.driftStoredSpeed > 50 && !%this.slingReady) // at high drift time AND high enough speed
+      else if(%this.driftStoredSpeed > 50 && !%this.slingReady && %this.getEnergyPercent() == 1) // at high drift time AND high enough speed
       {
          %this.slingReady = true;
          %this.mountImage(slipstreamLongDriftImage, 1);
@@ -362,7 +338,7 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
    }
 
    // drift turning
-   if(!%isInAir && %this.slingCooldown < 140)
+   if(!%isInAir)
    {
       %velVector = %this.getHorizontalVelocityVector();
       %velSpeed = vectorLen(%velVector) * 2;
@@ -402,7 +378,7 @@ function Player::auraTick(%this)
    }
    if(%this.getMountedImage(3) $= "0")
    {
-      %this.mountImage(slipstreamAuraBaseImage, 3);
+      %this.mountImage(slipstreamAuraBaseImage, 3);  
    }
    %this.auraImage = %this.getMountedImage(3).getName();
 
