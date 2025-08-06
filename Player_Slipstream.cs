@@ -403,7 +403,6 @@ function Player::auraTick(%this)
    if(%this.getMountedImage(3) $= "0")
    {
       %this.mountImage(slipstreamAuraBaseImage, 3);
-      announce("changed aura to" SPC %this.auraImage);
    }
    %this.auraImage = %this.getMountedImage(3).getName();
 
