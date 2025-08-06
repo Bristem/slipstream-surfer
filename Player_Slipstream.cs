@@ -46,11 +46,11 @@ function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
 {
 	cancel(%this.surfTick);
 
-	if (%this.getState() $= "Dead") 
+	if(%this.getState() $= "Dead") 
 		return;
    
-	if (!%this.isSurfing && !%this.startedSurfing && getSimTime() - %this.spawnTime >= 500) {
-		if (mAbs(getWord(%this.getVelocity(), 2)) >= 0.01) {
+	if(!%this.isSurfing && !%this.startedSurfing && getSimTime() - %this.spawnTime >= 500) {
+		if(mAbs(getWord(%this.getVelocity(), 2)) >= 0.01) {
 			%this.isSurfing = 1;
 			%this.startedSurfing = 1;
 
@@ -61,7 +61,7 @@ function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
 	%max = 75;
 	%min = 25;
 
-	if (isObject(%this.client)) // HUD
+	if(isObject(%this.client)) // HUD
    {
 		%speed = %this.getSpeedInBPS();
 		%text = "\c6  SPEED <color:FFFFAA> " @ mFloatLength(%speed, 0) SPC "BPS";
@@ -77,7 +77,7 @@ function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
 
          %text = %text NL "<font:lucida console:20>" SPC %dashcolor SPC "DASH " SPC "\c6/" SPC %slingcolor SPC "SLING";
 
-      if (%this.isSurfing) 
+      if(%this.isSurfing) 
       {
 			%time = getSimTime() - %this.surfStartTime;
 			%text = %text NL "\c6  TIME  <color:FFFFAA>" @ getTimeString(mFloatLength(%time / 1000, 2));
@@ -87,10 +87,10 @@ function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
 		commandToClient(%this.client, 'BottomPrint', "<font:lucida console:19>" @ %text, 0.25, 1);
 	}
 
-   if (getSimTime() - %this.spawnTime > $Game::PlayerInvulnerabilityTime && getWord(%this.position, 2) < 0.3) // force respawn on ground plane
+   if(getSimTime() - %this.spawnTime > $Game::PlayerInvulnerabilityTime && getWord(%this.position, 2) < 0.3) // force respawn on ground plane
    {
       %this.kill();
-      // if (isObject(%this.client)) 
+      // if(isObject(%this.client)) 
       // {
       //    %this.player.kill();
       //    //%this.client.instantRespawn();
@@ -141,7 +141,7 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
    if(%slot == 3) // crouch 
    {
       
-      if (%obj.getMountedImage(3) != 0)
+      if(%obj.getMountedImage(3) != 0)
       {
          %auraImage = %obj.getMountedImage(3).getName();
          %hasAura = true;
@@ -223,7 +223,7 @@ function Player::triggerSlingshot(%this)
    }
    %this.unmountImage(1);
    %this.mountImage(slipstreamBoostTrailImage, 0);
-   %this.schedule(2000, unmountImage(0));
+   %this.schedule(1000, "unmountImage", 0);
    %this.playAudio(1, slipstreamSlingshotSound);
    %this.isDrifting = false;
    %this.slingReady = false;
@@ -231,7 +231,7 @@ function Player::triggerSlingshot(%this)
    %this.setVelocity("0 0 0");
    %this.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 15);
 
-   %scaleFactor = (%this.driftStoredSpeed / 135) * (mPow(%this.driftCounter / %this.driftCounterLimit, 2)); // scale explosion from a total of max speed possible and max drift time
+   %scaleFactor = (%this.driftStoredSpeed / 135) * (mPow(%this.driftCounter / %this.driftCounterLimit, 2)) / 1.5; // scale explosion from a total of max speed possible and max drift time
    %p = new Projectile()
    {
       dataBlock = slipstreamExplosionProjectile;
@@ -269,7 +269,7 @@ function Player::isAirborne(%this) // thank you space guy
 function Player::airBoostTick(%this)  // tick check to see if we are still airborne after airboost
 {
    cancel(%this.airBoostTick);
-   if (%this.getState() $= "Dead") 
+   if(%this.getState() $= "Dead") 
    {
 		%this.hasBoosted = false;
       return;
@@ -287,7 +287,7 @@ function Player::airBoostTick(%this)  // tick check to see if we are still airbo
 function Player::slingCooldownTick(%this) // schedule loop to decrement sling cooldown
 {
    cancel(%this.slingCooldownTick);
-   if (%this.getState() $= "Dead") 
+   if(%this.getState() $= "Dead") 
    {
       %this.slingCooldown = 0;
       return;
@@ -305,7 +305,7 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
 {
    cancel(%this.driftTick);
    
-   if (%this.getState() $= "Dead") 
+   if(%this.getState() $= "Dead") 
    {
       %this.driftCounter = 0;
       %this.slingReady = false;
@@ -386,6 +386,24 @@ function Player::getHorizontalVelocityVector(%this)
    return getWord(%this.getVelocity(), 0) SPC getWord(%this.getVelocity(), 1) SPC " 0";
 }
 
+function Player::auraTick()
+{
+   cancel(%this.auraTick);
+   if(%this.getState() $= "Dead") 
+   {
+      %this.unmountImage(3);
+      return;
+	}
+	
+   if(%this.getSpeedInBPS() < 30)
+   {
+      %this.unmountImage(3);
+      return;
+   }
+
+   %this.auraTick = %this.schedule(30, auraTick);
+}
+
 // TODO: add stomp emitter, make smoother, probably dont allow it on ground
 package SlipstreamLightOverridePackage
 {
@@ -395,7 +413,7 @@ package SlipstreamLightOverridePackage
       if(isObject(%pl))
       {
          %armorName = %pl.getDataBlock().getName();
-         if (strstr(%armorName, "Boost") != -1)
+         if(strstr(%armorName, "Boost") != -1)
          {
             %pl.setVelocity("0 0 0");
             %pl.applyImpulse("0 0 0", "0 0 -5000");

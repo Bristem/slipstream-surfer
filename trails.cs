@@ -126,8 +126,23 @@ datablock ShapeBaseImageData(slipstreamAuraBaseImage) {
 	stateTransitionOnTimeout[1] = "Emit";
 };
 
+datablock ParticleData(slipstreamAuraBaseCrouchParticle : slipstreamAuraBaseParticle)
+{
+	textureName = "base/data/particles/dot.png";
+
+	sizes[0] = 1;
+	sizes[1] = 0.5;
+	sizes[2] = 0;
+};
+
+datablock ParticleEmitterData(slipstreamAuraBaseCrouchEmitter: slipstreamAuraBaseEmitter)
+{
+	particles = slipstreamAuraBaseCrouchParticle;
+};
+
 datablock ShapeBaseImageData(slipstreamAuraBaseCrouchImage : slipstreamAuraBaseImage) {
-	offset = "0 0 -0.5";
+	offset = "0 1 0.5";
+	stateEmitter[0] = slipstreamAuraBaseCrouchEmitter;
 };
 
 // boost visuals
