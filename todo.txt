@@ -1,17 +1,11 @@
 -----priority-----
-aura logic 
-    mount base aura to body? need to stop it flipping over
-    start using auraticks
-
-change sling logic to run on energy
-    show energy bar
-    consider adjusting tick logics to just use simtime
-        or just using basic schedule
-
-
------secondary-----
 adjust air dash to maintain speed if kept at relatively straight angles
 add sling boost sound logic (extend sound, run tick to end sound on slowdown, add mini boost sound)
+
+-----secondary-----
+mount base aura to body? need to stop it flipping over
+
+
 drift emitter looks ugly
 boost emitter looks ugly
 
