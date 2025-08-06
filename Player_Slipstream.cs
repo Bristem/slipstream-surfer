@@ -164,23 +164,20 @@ function Player::triggerAirDash(%this)
 {
    %this.hasBoosted = true;
    %this.airBoostTick();
+
    %speed = %this.getSpeedInBPS();
-   //if(%speed < 60) // speed limiter
-   //%impulse = 60;
-   //else if(%speed > 85)
-   //%impulse = 85;
-   //else %impulse = %speed;
    %impulse = 45;
    %boostVector = VectorScale(%this.getEyeVector(), %impulse * 60); // 60 roughly matches given speed in BPS
    %this.setVelocity("0 0 0");
    %this.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 1300);
+
    %this.playThread(3,jump);
    %this.playAudio(0, slipstreamAirdashSound);
+
    if(isEventPending(%this.auraTick) == 0)
    { 
       %this.auraTick();
    }
-   %this.mountImage(slipstreamAuraBaseImage, 3);
 
    %scaleFactor = getWord(%this.getScale(), 2);
    %data = pushBroomProjectile;
@@ -208,6 +205,11 @@ function Player::triggerSlingshot(%this)
    %this.mountImage(slipstreamBoostTrailImage, 0);
    %this.schedule(1000, "unmountImage", 0);
 
+   if(isEventPending(%this.auraTick) == 0)
+   { 
+      %this.auraTick();
+   }
+
    %this.playAudio(1, slipstreamSlingshotSound);
 
    %this.isDrifting = false;
@@ -231,14 +233,6 @@ function Player::triggerSlingshot(%this)
    };
    %p.setScale(%scaleFactor SPC %scaleFactor SPC %scaleFactor);
    %p.explode();
-
-   if(isEventPending(%this.auraTick) == 0)
-   { 
-      %this.auraTick();
-   }
-
-   %this.slingCooldown = 166; 
-   %this.slingCooldownTick();
 }
 
 // Do not touch the ground plane with this active it does not like that
@@ -302,6 +296,7 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
       %this.stopAudio(2);
       return;
    }
+   
    %isInAir = %this.isAirborne();
    if(%isInAir)
    {
