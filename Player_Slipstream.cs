@@ -37,8 +37,9 @@ function PlayerBoostArmor::onNewDataBlock(%this, %obj)
    %obj.driftCounter = 0;
    %obj.slingCooldown = 0;
    %obj.slingReady = false;
+   %obj.auraImage = "0";
 
-   %obj.driftCounterLimit = 50;
+   %obj.driftCounterLimit = 20;
 
 }
 
@@ -64,6 +65,12 @@ function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
 	if(isObject(%this.client)) // HUD
    {
 		%speed = %this.getSpeedInBPS();
+
+      // if(%speed > 130 && isEventPending(%this.auraTick) == 0)
+      // { 
+      //    %this.auraTick();
+      // }
+
 		%text = "\c6  SPEED <color:FFFFAA> " @ mFloatLength(%speed, 0) SPC "BPS";
       if(%this.hasBoosted)
          %dashcolor = "<color:a0a0a0>"; // dash on cooldown display
@@ -140,46 +147,31 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
 
    if(%slot == 3) // crouch 
    {
-      
-      if(%obj.getMountedImage(3) != 0)
-      {
-         %auraImage = %obj.getMountedImage(3).getName();
-         %hasAura = true;
-      }
-      else
-         %hasAura = false;
-
       if(%on)
       {
          %obj.isDrifting = true;
          %obj.driftStoredSpeed = %obj.getSpeedInBPS();
          cancel(%obj.driftTick);
          %obj.driftTick();
-
-         if(%hasAura)
+         if(%obj.auraImage $= "slipstreamAuraBaseImage")
          {
-            if(%auraImage $= "slipstreamAuraBaseImage")
-            {
-               %obj.mountImage(slipstreamAuraBaseCrouchImage, 3);
-            }
+            %obj.mountImage(slipstreamAuraBaseCrouchImage, 3);
          }
       }
       if(!%on)
       {
          %obj.isDrifting = false;
 
-         if(%hasAura)
+         if(%obj.auraImage $= "slipstreamAuraBaseCrouchImage")
          {
-            if(%auraImage $= "slipstreamAuraBaseCrouchImage")
-            {
-               %obj.mountImage(slipstreamAuraBaseImage, 3);
-            }
+            %obj.mountImage(slipstreamAuraBaseImage, 3);
          }
       }
    }
 
    return %r;
 }
+
 
 function Player::triggerAirDash(%this)
 {
@@ -197,6 +189,10 @@ function Player::triggerAirDash(%this)
    %this.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 1300);
    %this.playThread(3,jump);
    %this.playAudio(0, slipstreamAirdashSound);
+   if(isEventPending(%this.auraTick) == 0)
+   { 
+      %this.auraTick();
+   }
    %this.mountImage(slipstreamAuraBaseImage, 3);
 
    %scaleFactor = getWord(%this.getScale(), 2);
@@ -244,6 +240,11 @@ function Player::triggerSlingshot(%this)
    };
    %p.setScale(%scaleFactor SPC %scaleFactor SPC %scaleFactor);
    %p.explode();
+
+   if(isEventPending(%this.auraTick) == 0)
+   { 
+      %this.auraTick();
+   }
 
    %this.slingCooldown = 166; 
    %this.slingCooldownTick();
@@ -386,7 +387,7 @@ function Player::getHorizontalVelocityVector(%this)
    return getWord(%this.getVelocity(), 0) SPC getWord(%this.getVelocity(), 1) SPC " 0";
 }
 
-function Player::auraTick()
+function Player::auraTick(%this)
 {
    cancel(%this.auraTick);
    if(%this.getState() $= "Dead") 
@@ -395,13 +396,20 @@ function Player::auraTick()
       return;
 	}
 	
-   if(%this.getSpeedInBPS() < 30)
+   if(%this.getSpeedInBPS() < 30 && !(%this.isDrifting))
    {
       %this.unmountImage(3);
+      %this.auraImage = "0";
       return;
    }
+   if(%this.getMountedImage(3) $= "0")
+   {
+      %this.mountImage(slipstreamAuraBaseImage, 3);
+      announce("changed aura to" SPC %this.auraImage);
+   }
+   %this.auraImage = %this.getMountedImage(3).getName();
 
-   %this.auraTick = %this.schedule(30, auraTick);
+   %this.auraTick = %this.schedule(100, auraTick);
 }
 
 // TODO: add stomp emitter, make smoother, probably dont allow it on ground
