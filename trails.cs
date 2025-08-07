@@ -6,6 +6,9 @@ datablock ExplosionData(slipstreamExplosion : rocketExplosion)
    radiusDamage		= 0;
    damageRadius		= 0;
 
+   emitter[0] = "";
+   particleEmitter = "";
+
    camShakeDuration  = 0.3;
    camShakeFalloff   = 2;
    camShakeRadius    = 5;
