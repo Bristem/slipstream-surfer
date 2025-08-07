@@ -140,19 +140,10 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
          %obj.driftStoredSpeed = %obj.getSpeedInBPS();
          cancel(%obj.driftTick);
          %obj.driftTick();
-         if(%obj.auraImage $= "slipstreamAuraBaseImage")
-         {
-            %obj.mountImage(slipstreamAuraBaseCrouchImage, 3);
-         }
       }
       if(!%on)
       {
          %obj.isDrifting = false;
-
-         if(%obj.auraImage $= "slipstreamAuraBaseCrouchImage")
-         {
-            %obj.mountImage(slipstreamAuraBaseImage, 3);
-         }
       }
    }
 
@@ -389,13 +380,23 @@ function Player::auraTick(%this)
       %this.auraImage = "0";
       return;
    }
-   if(%this.getMountedImage(3) $= "0")
+   if(%this.isCrouched())
    {
-      %this.mountImage(slipstreamAuraBaseImage, 3);  
+      if(!(%this.auraImage $= "slipstreamAuraBaseCrouchImage"))
+      {
+         %this.mountImage(slipstreamAuraBaseCrouchImage, 3);
+      }
    }
+   else
+   {
+      if(!(%this.auraImage $= "slipstreamAuraBaseImage"))
+      {
+         %this.mountImage(slipstreamAuraBaseImage, 3);  
+      }
+   }
+   
    %this.auraImage = %this.getMountedImage(3).getName();
-
-   %this.auraTick = %this.schedule(100, auraTick);
+   %this.auraTick = %this.schedule(50, auraTick);
 }
 
 // TODO: add stomp emitter, make smoother, probably dont allow it on ground
