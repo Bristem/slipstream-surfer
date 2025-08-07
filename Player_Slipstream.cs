@@ -121,7 +121,7 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
          return %r;
       if(!%obj.isAirborne())
       {
-         if(%obj.isDrifting && !(%obj.isAirborne()) && %obj.getEnergyPercent() == 1)
+         if(%obj.isDrifting && (%obj.driftCounter == %obj.driftCounterLimit) && %obj.getEnergyPercent() == 1)
          {
             %obj.triggerSlingshot();
          }
@@ -229,7 +229,7 @@ function Player::triggerSlingshot(%this)
    %this.setVelocity("0 0 0");
    %this.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 15);
 
-   %scaleFactor = (%this.driftStoredSpeed / 135) * (mPow(%this.driftCounter / %this.driftCounterLimit, 2)) / 1.5; // scale explosion from a total of max speed possible and max drift time
+   %scaleFactor = 1; 
    %p = new Projectile()
    {
       dataBlock = slipstreamExplosionProjectile;
@@ -240,7 +240,7 @@ function Player::triggerSlingshot(%this)
       sourceSlot = 0;
       originPoint = %pos;
    };
-   %p.setScale(%scaleFactor SPC %scaleFactor SPC %scaleFactor);
+   %p.setScale(%scaleFactor SPC %scaleFactor SPC 0.5);
    %p.explode();
 }
 
