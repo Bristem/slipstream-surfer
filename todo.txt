@@ -1,16 +1,18 @@
 -----priority-----
-adjust air dash to maintain speed if kept at relatively straight angles
-add sling boost sound logic (extend sound, run tick to end sound on slowdown, add mini boost sound)
+design gamemode objects
+    spring
+    dash panel
+    boost ring
+
+design first map
 
 -----secondary-----
 mount base aura to body? need to stop it flipping over
-
-
 drift emitter looks ugly
 boost emitter looks ugly
-
-
-
+add sling boost sound logic (extend sound, run tick to end sound on slowdown, add mini boost sound)
+add stomp emitter and sound
+    tick logic
 
 -----tertiary-----
 fix audio being weird in first person
@@ -29,7 +31,6 @@ drifting stutter
 -----much later / needs some foundation-----
 ramp static shapes
     optimize ramps script, load in static shapes for certain ramp bricks
-design gamemode objects (spring, dash panel, boost ring)
 design prints (u turn)
 design extra emitters
 track system

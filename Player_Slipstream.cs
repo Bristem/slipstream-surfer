@@ -114,7 +114,6 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
 {
    %r = Parent::onTrigger(%this,%obj,%slot,%on);
 
-
    if(%slot == 4 && %on) // right click / jet
    { 
       if(%obj.hasBoosted)
@@ -130,7 +129,6 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
 
       %obj.triggerAirDash();
    }
-
 
    if(%slot == 3) // crouch 
    {
@@ -149,7 +147,6 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
 
    return %r;
 }
-
 
 function Player::triggerAirDash(%this)
 {
