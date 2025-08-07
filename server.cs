@@ -23,11 +23,7 @@ else if(%addon3 == $Error::AddOn_NotFound)
 }
 else
 {
-   //exec("./Support_AltDatablock.cs");
-   exec("./trails.cs");
-   exec("./sounds.cs");
-   exec("./Player_Slipstream.cs");
-   //exec("./horsle.cs");
+   exec("./Player_Slipstream/server.cs");
 }
 BrickTreasureChestData.isSurfTrack = 1;
 BrickTreasureChestOpenData.isSurfTrack = 1;
