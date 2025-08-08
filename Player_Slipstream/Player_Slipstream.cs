@@ -183,13 +183,13 @@ function Player::triggerAirDash(%this)
    %data = pushBroomProjectile;
    %p = new Projectile()
    {
-   dataBlock = %data;
-   initialPosition = %this.getPosition();
-   initialVelocity = "0 0 -1";
-   sourceObject = %this;
-   client = %this.client;
-   sourceSlot = 0;
-   originPoint = %pos;
+      dataBlock = %data;
+      initialPosition = %this.getPosition();
+      initialVelocity = "0 0 -1";
+      sourceObject = %this;
+      client = %this.client;
+      sourceSlot = 0;
+      originPoint = %pos;
    };
    %p.setScale(%scaleFactor * 2 SPC %scaleFactor * 2 SPC %scaleFactor * 2);
    %p.explode();
@@ -226,7 +226,7 @@ function Player::triggerSlingshot(%this)
    %this.setVelocity("0 0 0");
    %this.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 15);
 
-   %scaleFactor = 1; 
+   %scaleFactor = 1.5; 
    %p = new Projectile()
    {
       dataBlock = slipstreamExplosionProjectile;
@@ -237,7 +237,7 @@ function Player::triggerSlingshot(%this)
       sourceSlot = 0;
       originPoint = %pos;
    };
-   %p.setScale(%scaleFactor SPC %scaleFactor SPC 0.5);
+   %p.setScale(%scaleFactor SPC %scaleFactor SPC 1);
    %p.explode();
 }
 
