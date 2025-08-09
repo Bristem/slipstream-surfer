@@ -74,7 +74,7 @@ function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
       if(%this.isSurfing) 
       {
 			%time = getSimTime() - %this.surfStartTime;
-			%text = %text NL "\c6  TIME  <color:FFFFAA>" @ getTimeString(mFloatLength(%time / 1000, 2));
+			%text = %text SPC "\c6      TIME  <color:FFFFAA>" @ getTimeString(mFloatLength(%time / 1000, 2));
       }
 		%factor = mClampF((%speed - %min) / (%max - %min), 0, 1) * 0.1;
 		commandToClient(%this.client, 'SetVignette', 1, %factor SPC %factor SPC %factor SPC %factor);
@@ -98,6 +98,14 @@ function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
 	}
 
 	%this.surfTick = %this.schedule(50, surfTick);
+}
+
+function PlayerBoostArmor::onEnterLiquid(%this, %obj, %coverage, %type)
+{
+   Parent::onEnterLiquid(%data, %obj, %coverage, %type);
+   %obj.hasShotOnce = true;
+   %obj.invulnerable = false;
+   %obj.damage(%obj, %obj.getPosition(), 10000, $DamageType::Lava);
 }
 
 function Player::getSpeedInBPS(%this, %obj) // bricks per second, thanks to Buddy for this
