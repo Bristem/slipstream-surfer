@@ -74,7 +74,7 @@ function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
       if(%this.isSurfing) 
       {
 			%time = getSimTime() - %this.surfStartTime;
-			%text = %text SPC "\c6      TIME  <color:FFFFAA>" @ getTimeString(mFloatLength(%time / 1000, 2));
+			%text = %text SPC "\c6   TIME  <color:FFFFAA>" @ getTimeString(mFloatLength(%time / 1000, 2));
       }
 		%factor = mClampF((%speed - %min) / (%max - %min), 0, 1) * 0.1;
 		commandToClient(%this.client, 'SetVignette', 1, %factor SPC %factor SPC %factor SPC %factor);
