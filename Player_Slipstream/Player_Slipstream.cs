@@ -18,7 +18,7 @@ datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
 
    maxForwardSpeed = 100; // to get BPS, torque units multiplied by two, this max speed is 200
    horizMaxSpeed = 100;
-   maxForwardCrouchSpeed = 50;
+   maxForwardCrouchSpeed = 100;
 	maxBackwardSpeed = 80;
 	maxSideSpeed = 80;
 
@@ -165,9 +165,9 @@ function Player::triggerAirDash(%this)
    // angle difference between velocity and player cam direction
    %velocityVector = vectorNormalize(%this.getHorizontalVelocityVector());
    %eyeVector = vectorNormalize(getWord(%this.getEyeVector(), 0) SPC getWord(%this.getEyeVector(), 1) SPC "0");
-   %angleBetween = getAngleBetweenVectors(%velocityVector, %eyeVector) * (180 / $pi); // work in degrees pls
+   %angleBetweenVelAndEye = angleBetweenVectors(%velocityVector, %eyeVector) * (180 / $pi); // work in degrees pls
 
-   if(%angleBetween > 10 || %this.getSpeedInBPS() < 60)
+   if(%angleBetweenVelAndEye > 10 || %this.getSpeedInBPS() < 60)
    {
       %impulse = 50 * 60; // 60 roughly the scale we need to match 50 BPS
    }                      // this will change if you mess with runforce or drag or some other thing,,, i think,,, i dont know i cant remember
@@ -203,10 +203,19 @@ function Player::triggerAirDash(%this)
    %p.explode();
 }
 
-function getAngleBetweenVectors(%vecA, %vecB)
+function angleBetweenVectors(%vecA, %vecB)
 {
    %dot = vectorDot(%vecA, %vecB);
    return mAcos(%dot);
+}
+
+function signedAngleBetweenVectors(%vecA, %vecB)
+{
+   %angle = angleBetweenVectors(%vecA, %vecB);
+   %cross = getWord(vectorCross(%vecA, %vecB), 2);
+   if (%cross > 0)
+      %angle = -%angle; // for my sanity we will be using clockwise angle as positive. i may regret this decision
+   return %angle;
 }
 
 function Player::triggerSlingshot(%this)
@@ -349,16 +358,38 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
    // drift turning
    if(!%isInAir)
    {
-      %velVector = %this.getHorizontalVelocityVector();
-      %velSpeed = vectorLen(%velVector) * 2;
-      %speedCap = 105;
-      if(%velSpeed > %this.driftStoredSpeed || %velSpeed > %speedCap)
+      // %velVector = %this.getHorizontalVelocityVector();
+      // %velSpeed = vectorLen(%velVector) * 2;
+      // %speedCap = 105;
+      // if(%velSpeed > %this.driftStoredSpeed || %velSpeed > %speedCap)
+      // {
+      //    %velVector = %this.getHorizontalVelocityVector();
+      //    %this.setVelocity(vectorScale(%velVector, 0.90)); // decay speed if going too fast
+      // }
+      // %force = vectorScale(%this.getEyeVector(), 200);
+      // %this.applyImpulse("0 0 0", getWord(%force, 0) SPC getWord(%force, 1) SPC "0");
+
+
+      %normVelVector = vectorNormalize(%this.getHorizontalVelocityVector());
+      %normForwardVector = vectorNormalize(%this.getForwardVector());
+      %angleDiff = signedAngleBetweenVectors(%normVelVector, %normForwardVector) * (180 / $pi); // In degreeees
+      // talk(%normVelVector);
+
+      if(%angleDiff > 10)
       {
-         %velVector = %this.getHorizontalVelocityVector();
-         %this.setVelocity(vectorScale(%velVector, 0.90)); // decay speed if going too fast
+         %forceVector = getWord(%normVelVector, 1) SPC getWord(%normVelVector, 0) * -1 SPC "0";
       }
-      %force = vectorScale(%this.getEyeVector(), 200);
-      %this.applyImpulse("0 0 0", getWord(%force, 0) SPC getWord(%force, 1) SPC "0");
+      else if(%angleDiff < -10)
+      {
+         %forceVector = getWord(%normVelVector, 1) * -1 SPC getWord(%normVelVector, 0) SPC "0";
+      }
+      else
+      {
+         %forceVector = "0 0 0";
+      }
+
+      %forceVector = vectorScale(%forceVector, 300);
+      %this.applyImpulse("0 0 0", %forceVector);
    }
 
 
