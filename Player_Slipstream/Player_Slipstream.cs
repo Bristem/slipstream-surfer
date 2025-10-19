@@ -213,8 +213,8 @@ function signedAngleBetweenVectors(%vecA, %vecB)
 {
    %angle = angleBetweenVectors(%vecA, %vecB);
    %cross = getWord(vectorCross(%vecA, %vecB), 2);
-   if (%cross > 0)
-      %angle = -%angle; // for my sanity we will be using clockwise angle as positive. i may regret this decision
+   if (%cross < 0)
+      %angle = -%angle; // immediately regretted using clockwise angle as positive. do not do it.
    return %angle;
 }
 
@@ -370,18 +370,18 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
       // %this.applyImpulse("0 0 0", getWord(%force, 0) SPC getWord(%force, 1) SPC "0");
 
 
-      %normVelVector = vectorNormalize(%this.getHorizontalVelocityVector());
-      %normForwardVector = vectorNormalize(%this.getForwardVector());
-      %angleDiff = signedAngleBetweenVectors(%normVelVector, %normForwardVector) * (180 / $pi); // In degreeees
-      // talk(%normVelVector);
+      %velVector = vectorNormalize(%this.getHorizontalVelocityVector());
+      %forwardVector = %this.getForwardVector();
+      %angleDiff = signedAngleBetweenVectors(%velVector, %forwardVector) * (180 / $pi); // In degreeees
 
-      if(%angleDiff > 10)
+      // talk(%angleDiff);
+      if(%angleDiff < -10) // player aim is clockwise to velocity
       {
-         %forceVector = getWord(%normVelVector, 1) SPC getWord(%normVelVector, 0) * -1 SPC "0";
+         %forceVector = getWord(%velVector, 1) SPC getWord(%velVector, 0) * -1 SPC "0";
       }
-      else if(%angleDiff < -10)
+      else if(%angleDiff > 10)
       {
-         %forceVector = getWord(%normVelVector, 1) * -1 SPC getWord(%normVelVector, 0) SPC "0";
+         %forceVector = getWord(%velVector, 1) * -1 SPC getWord(%velVector, 0) SPC "0";
       }
       else
       {
