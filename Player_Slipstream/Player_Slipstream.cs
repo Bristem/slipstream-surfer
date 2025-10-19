@@ -164,10 +164,10 @@ function Player::triggerAirDash(%this)
    
    // angle difference between velocity and player cam direction
    %velocityVector = vectorNormalize(%this.getHorizontalVelocityVector());
-   %eyeVector = vectorNormalize(getWord(%this.getEyeVector(), 0) SPC getWord(%this.getEyeVector(), 1) SPC "0");
-   %angleBetweenVelAndEye = angleBetweenVectors(%velocityVector, %eyeVector) * (180 / $pi); // work in degrees pls
+   %forwardVector = vectorNormalize(%this.getForwardVector());
+   %angleDiff = angleBetweenVectors(%velocityVector, %forwardVector) * (180 / $pi); // work in degrees pls
 
-   if(%angleBetweenVelAndEye > 10 || %this.getSpeedInBPS() < 60)
+   if(%angleDiff > 10 || %this.getSpeedInBPS() < 60)
    {
       %impulse = 50 * 60; // 60 roughly the scale we need to match 50 BPS
    }                      // this will change if you mess with runforce or drag or some other thing,,, i think,,, i dont know i cant remember
@@ -175,7 +175,7 @@ function Player::triggerAirDash(%this)
    {
       %impulse = %this.getSpeedInBPS() * 60;
    }
-   %boostVector = VectorScale(%this.getEyeVector(), %impulse);
+   %boostVector = VectorScale(%this.getForwardVector(), %impulse);
    %this.setVelocity("0 0 0");
    %this.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 1300);
 
@@ -239,7 +239,7 @@ function Player::triggerSlingshot(%this)
    %this.slingReady = false;
    %this.setEnergyLevel(0);
 
-   %boostVector = VectorScale(%this.getEyeVector(), %this.driftStoredSpeed * 60);
+   %boostVector = VectorScale(%this.getForwardVector(), %this.driftStoredSpeed * 60);
    %this.setVelocity("0 0 0");
    %this.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 15);
 
