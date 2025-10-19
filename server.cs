@@ -16,6 +16,6 @@ else if(ForceRequiredAddOn("Weapon_Rocket_Launcher") == $Error::AddOn_NotFound)
 }
 else
 {
+   exec("./temptimer.cs");
    exec("./Player_Slipstream/server.cs");
-   exec("./Player_Slipstream/temptimer.cs");
 }
