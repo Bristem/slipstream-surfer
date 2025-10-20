@@ -389,9 +389,16 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
          %forceVector = "0 0 0";
       }
       
-      %forceVector = vectorScale(%forceVector, 7);
-      // %this.applyImpulse("0 0 0", %forceVector);
-      %this.AddVelocity(%forceVector); // ADJUST THIS NUMBER PROPER
+      if(mAbs(%angleDiff) > 120)
+      {
+         %forceVector = vectorScale(%forwardVector, 6);
+      }
+      else
+      {
+         %forceVector = vectorScale(%forceVector, 2);
+      }
+
+      %this.AddVelocity(%forceVector);
    }
 
 
