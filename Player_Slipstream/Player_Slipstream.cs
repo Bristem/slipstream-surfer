@@ -18,7 +18,7 @@ datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
 
    maxForwardSpeed = 100; // to get BPS, torque units multiplied by two, this max speed is 200
    horizMaxSpeed = 100;
-   maxForwardCrouchSpeed = 100;
+   maxForwardCrouchSpeed = 68; // ok i lied for some reason the factor is not two for crouch? or maybe the one on top. idk it doesnt really matter
 	maxBackwardSpeed = 80;
 	maxSideSpeed = 80;
 
