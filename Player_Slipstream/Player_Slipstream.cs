@@ -169,15 +169,16 @@ function Player::triggerAirDash(%this)
 
    if(%angleDiff > 10 || %this.getSpeedInBPS() < 60)
    {
-      %impulse = 50 * 60; // 60 roughly the scale we need to match 50 BPS
-   }                      // this will change if you mess with runforce or drag or some other thing,,, i think,,, i dont know i cant remember
+      %impulse = 25; // using setvelocity: doubling this number gets our target BPS
+   }                 // this may change if you mess with runforce or drag or some other thing
    else
    {
-      %impulse = %this.getSpeedInBPS() * 60;
+      %impulse = vectorLen(%this.getVelocity());
    }
    %boostVector = VectorScale(%this.getForwardVector(), %impulse);
-   %this.setVelocity("0 0 0");
-   %this.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 1300);
+   // %this.setVelocity("0 0 0");
+   // %this.applyImpulse("0 0 0", %boostVector);
+   %this.setVelocity(getWords(%boostVector, 0, 1) SPC 9);
 
    %this.playThread(3,jump);
    %this.playAudio(0, slipstreamAirdashSound);
@@ -387,9 +388,10 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
       {
          %forceVector = "0 0 0";
       }
-
-      %forceVector = vectorScale(%forceVector, 300);
-      %this.applyImpulse("0 0 0", %forceVector);
+      
+      %forceVector = vectorScale(%forceVector, 7);
+      // %this.applyImpulse("0 0 0", %forceVector);
+      %this.AddVelocity(%forceVector); // ADJUST THIS NUMBER PROPER
    }
 
 
@@ -446,8 +448,7 @@ package SlipstreamLightOverridePackage
          %armorName = %pl.getDataBlock().getName();
          if(strstr(%armorName, "Boost") != -1)
          {
-            %pl.setVelocity("0 0 0");
-            %pl.applyImpulse("0 0 0", "0 0 -5000");
+            %pl.setVelocity("0 0 -30");
          }
          else Parent::servercmdLight(%cl);
       }
