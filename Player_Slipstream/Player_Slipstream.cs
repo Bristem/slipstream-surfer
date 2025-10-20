@@ -11,7 +11,7 @@ datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
    canJet = false;
    showEnergyBar = true;
    maxEnergy = 100;
-   rechargeRate = 1; // 3 second recharge
+   rechargeRate = 0;
 
    mass = 120;
    boundingBox = "5 5 10.6";
@@ -128,10 +128,11 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
          return %r;
       if(!%obj.isAirborne())
       {
-         if(%obj.isDrifting && (%obj.driftCounter == %obj.driftCounterLimit) && %obj.getEnergyPercent() == 1)
+         if(%obj.isDrifting && %obj.getEnergyPercent() == 1)
          {
             %obj.triggerSlingshot();
          }
+
          return %r;
       }
 
@@ -221,10 +222,11 @@ function signedAngleBetweenVectors(%vecA, %vecB)
 
 function Player::triggerSlingshot(%this)
 {
-   if(%this.driftCounter < %this.driftCounterLimit && %this.driftStoredSpeed > 70)
-   {
-      %this.driftStoredSpeed /= 3; // reduce speed if the drift is too low
-   }
+   // if(%this.driftCounter < %this.driftCounterLimit && %this.driftStoredSpeed > 70)
+   // {
+   //    %this.driftStoredSpeed /= 3; // reduce speed if the drift is too low
+   // }
+
    %this.unmountImage(1);
    %this.mountImage(slipstreamBoostTrailImage, 0);
    %this.schedule(1000, "unmountImage", 0);
@@ -237,7 +239,6 @@ function Player::triggerSlingshot(%this)
    %this.playAudio(1, slipstreamSlingshotSound);
 
    %this.isDrifting = false;
-   %this.slingReady = false;
    %this.setEnergyLevel(0);
 
    %boostVector = VectorScale(%this.getForwardVector(), %this.driftStoredSpeed * 60);
@@ -294,15 +295,15 @@ function Player::airBoostTick(%this)  // tick check to see if we are still airbo
    %this.airBoostTick = %this.schedule(30, airBoostTick);
 }
 
+// TODO : progress drift energy charge, with charge emitters (star orbits?). adjust existing emitter logics.
+// consider slow charge on non-turn
 function Player::driftTick(%this) // drift cooldown and timer, applying emitter logic
 {
    cancel(%this.driftTick);
    
    if(%this.getState() $= "Dead") 
    {
-      %this.driftCounter = 0;
-      %this.slingReady = false;
-
+      %this.setEnergyLevel(0);
       %this.stopAudio(2);
 
       return;
@@ -310,11 +311,8 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
 	
    if(!(%this.isDrifting))
    {
-      %this.driftCounter = 0;
-      %this.slingReady = false;
-
+      %this.setEnergyLevel(0);
       %this.stopAudio(2);
-
       %this.unmountImage(1);
       return;
    }
@@ -322,64 +320,39 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
    if(%this.driftStoredSpeed < 25)
    {
       %this.stopAudio(2);
-
       return;
    }
 
    %isInAir = %this.isAirborne();
    if(%isInAir)
    {
-      %this.driftCounter = 0;
-      %this.slingReady = false;
+      %this.setEnergyLevel(0);
       %this.stopAudio(2);
-      
-      %this.driftStoredSpeed = %this.getSpeedInBPS();
       %this.unmountImage(1);
    }
    else
    {
-      %scaleFactor = 0.4;
       %this.playAudio(2, slipstreamDriftingSound);
-      if(%this.slingCooldown > 0)
+
+      if (%this.getEnergyPercent() < 1)
       {
-         %this.slingCooldown -= 1;
+         %this.mountImage(slipstreamDriftImage, 1);
       }
-      
-      if(%this.driftCounter < %this.driftCounterLimit) // at low drift time
+      else
       {
-         %this.driftCounter += 1;
-      }
-      else if(%this.driftStoredSpeed > 50 && !%this.slingReady && %this.getEnergyPercent() == 1) // at high drift time AND high enough speed
-      {
-         %this.slingReady = true;
          %this.mountImage(slipstreamLongDriftImage, 1);
-         %scaleFactor = 0.9;
          %this.playAudio(1, slipstreamSlingReadySound);
       }
-
-      if(!%this.slingReady)
-         %this.mountImage(slipstreamDriftImage, 1);
    }
 
    // drift turning
    if(!%isInAir)
    {
-      // %velVector = %this.getHorizontalVelocityVector();
-      // %velSpeed = vectorLen(%velVector) * 2;
-      // %speedCap = 105;
-      // if(%velSpeed > %this.driftStoredSpeed || %velSpeed > %speedCap)
-      // {
-      //    %velVector = %this.getHorizontalVelocityVector();
-      //    %this.setVelocity(vectorScale(%velVector, 0.90)); // decay speed if going too fast
-      // }
-      // %force = vectorScale(%this.getEyeVector(), 200);
-      // %this.applyImpulse("0 0 0", getWord(%force, 0) SPC getWord(%force, 1) SPC "0");
-
-
       %velVector = vectorNormalize(%this.getHorizontalVelocityVector());
       %forwardVector = %this.getForwardVector();
       %angleDiff = signedAngleBetweenVectors(%velVector, %forwardVector) * (180 / $pi); // In degreeees
 
+      %turning = true;
       // talk(%angleDiff);
       if(%angleDiff < -10) // player aim is clockwise to velocity
       {
@@ -392,21 +365,26 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
       else
       {
          %forceVector = "0 0 0";
+         %turning = false;
       }
-      
+
       if(mAbs(%angleDiff) > 120)
       {
          %forceVector = vectorScale(%forwardVector, 6);
+         %this.setEnergyLevel((%this.getEnergyPercent() * 100) + 6);
+         
       }
       else
       {
          %forceVector = vectorScale(%forceVector, 2);
+         if(%turning)
+            %this.setEnergyLevel((%this.getEnergyPercent() * 100) + 3);
       }
 
       %this.AddVelocity(%forceVector);
    }
 
-
+   // %this.setEnergyLevel(100);
    %this.driftTick = %this.schedule(40, driftTick);
 }
 
