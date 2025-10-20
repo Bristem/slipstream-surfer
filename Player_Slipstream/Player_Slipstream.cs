@@ -302,7 +302,9 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
    {
       %this.driftCounter = 0;
       %this.slingReady = false;
+
       %this.stopAudio(2);
+
       return;
 	}
 	
@@ -310,7 +312,9 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
    {
       %this.driftCounter = 0;
       %this.slingReady = false;
+
       %this.stopAudio(2);
+
       %this.unmountImage(1);
       return;
    }
@@ -318,21 +322,22 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
    if(%this.driftStoredSpeed < 25)
    {
       %this.stopAudio(2);
+
       return;
    }
 
    %isInAir = %this.isAirborne();
    if(%isInAir)
    {
-      %this.stopAudio(2);
       %this.driftCounter = 0;
+      %this.slingReady = false;
+      %this.stopAudio(2);
+      
       %this.driftStoredSpeed = %this.getSpeedInBPS();
       %this.unmountImage(1);
-      %this.slingReady = false;
    }
    else
    {
-      %isInAir = false;
       %scaleFactor = 0.4;
       %this.playAudio(2, slipstreamDriftingSound);
       if(%this.slingCooldown > 0)
