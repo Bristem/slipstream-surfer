@@ -250,15 +250,12 @@ function Player::triggerSlingshot(%this)
    else
       %scaleFactor = %this.driftStoredSpeed / 2;
       
-
    %boostVector = VectorScale(%this.getForwardVector(), %scaleFactor);
-   talk(%boostVector);
-   talk(%scaleFactor);
    %this.setVelocity(getWords(%boostVector, 0, 1) SPC 3);
    // %this.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 15);
 
    // boost explosion
-   %projScale = 1.5; 
+   %projScale = 1.5;
    %p = new Projectile()
    {
       dataBlock = slipstreamExplosionProjectile;
