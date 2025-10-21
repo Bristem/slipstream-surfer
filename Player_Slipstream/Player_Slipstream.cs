@@ -239,13 +239,26 @@ function Player::triggerSlingshot(%this)
    %this.playAudio(1, slipstreamSlingshotSound);
 
    %this.isDrifting = false;
+   %this.slingshotCharged = false;
    %this.setEnergyLevel(0);
 
-   %boostVector = VectorScale(%this.getForwardVector(), %this.driftStoredSpeed * 60);
-   %this.setVelocity("0 0 0");
-   %this.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 15);
 
-   %scaleFactor = 1.5; 
+   if(%this.driftStoredSpeed < 100)
+      %scaleFactor = 110 / 2;
+   else if(%this.driftStoredSpeed < 150)
+      %scaleFactor = 170 / 2;
+   else
+      %scaleFactor = %this.driftStoredSpeed / 2;
+      
+
+   %boostVector = VectorScale(%this.getForwardVector(), %scaleFactor);
+   talk(%boostVector);
+   talk(%scaleFactor);
+   %this.setVelocity(getWords(%boostVector, 0, 1) SPC 3);
+   // %this.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 15);
+
+   // boost explosion
+   %projScale = 1.5; 
    %p = new Projectile()
    {
       dataBlock = slipstreamExplosionProjectile;
@@ -256,7 +269,7 @@ function Player::triggerSlingshot(%this)
       sourceSlot = 0;
       originPoint = %pos;
    };
-   %p.setScale(%scaleFactor SPC %scaleFactor SPC 1);
+   %p.setScale(%projScale SPC %projScale SPC 1);
    %p.explode();
 }
 
@@ -304,6 +317,7 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
    if(%this.getState() $= "Dead") 
    {
       %this.setEnergyLevel(0);
+      %this.slingshotCharged = false;
       %this.stopAudio(2);
 
       return;
@@ -312,6 +326,7 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
    if(!(%this.isDrifting))
    {
       %this.setEnergyLevel(0);
+      %this.slingshotCharged = false;
       %this.stopAudio(2);
       %this.unmountImage(1);
       return;
@@ -327,6 +342,7 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
    if(%isInAir)
    {
       %this.setEnergyLevel(0);
+      %this.slingshotCharged = false;
       %this.stopAudio(2);
       %this.unmountImage(1);
    }
@@ -334,15 +350,22 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
    {
       %this.playAudio(2, slipstreamDriftingSound);
 
-      if (%this.getEnergyPercent() < 1)
+      if(!%this.slingshotCharged)
       {
-         %this.mountImage(slipstreamDriftImage, 1);
+         if (%this.getEnergyPercent() == 1)
+         {
+            %this.playAudio(1, slipstreamSlingReadySound);
+            %this.mountImage(slipstreamLongDriftImage, 1);
+            %this.slingshotCharged = true;
+         }
+         else
+         {
+            %this.mountImage(slipstreamDriftImage, 1);
+            %this.slingshotCharged = false;
+         }
       }
-      else
-      {
-         %this.mountImage(slipstreamLongDriftImage, 1);
-         %this.playAudio(1, slipstreamSlingReadySound);
-      }
+
+      
    }
 
    // drift turning
