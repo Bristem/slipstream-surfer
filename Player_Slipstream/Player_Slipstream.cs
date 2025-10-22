@@ -183,8 +183,6 @@ function Player::triggerAirDash(%this)
       %impulse = vectorLen(%this.getVelocity());
    }
    %boostVector = VectorScale(%this.getForwardVector(), %impulse);
-   // %this.setVelocity("0 0 0");
-   // %this.applyImpulse("0 0 0", %boostVector);
    %this.setVelocity(getWords(%boostVector, 0, 1) SPC 9);
 
    %this.playThread(3,jump);
@@ -228,13 +226,7 @@ function signedAngleBetweenVectors(%vecA, %vecB)
 
 function Player::triggerSlingshot(%this)
 {
-   // if(%this.driftCounter < %this.driftCounterLimit && %this.driftStoredSpeed > 70)
-   // {
-   //    %this.driftStoredSpeed /= 3; // reduce speed if the drift is too low
-   // }
-
    %this.unmountImage(1);
-   // %this.mountImage(slipstreamBoostTrailImage, 0);
    %this.mountImage(%this.boostTrailImage, 0);
    %this.schedule(1000, "unmountImage", 0);
 
@@ -259,7 +251,6 @@ function Player::triggerSlingshot(%this)
       
    %boostVector = VectorScale(%this.getForwardVector(), %scaleFactor);
    %this.setVelocity(getWords(%boostVector, 0, 1) SPC 3);
-   // %this.applyImpulse("0 0 0", getWord(%boostVector, 0) SPC getWord(%boostVector, 1) SPC 15);
 
    // boost explosion
    %projScale = 1.5;
@@ -382,7 +373,6 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
       %angleDiff = signedAngleBetweenVectors(%velVector, %forwardVector) * (180 / $pi); // In degreeees
 
       %turning = true;
-      // talk(%angleDiff);
       if(%angleDiff < -10) // if player aim is clockwise to velocity, aka when turning right
       {
          %forceVector = getWord(%velVector, 1) SPC getWord(%velVector, 0) * -1 SPC "0";
@@ -410,20 +400,17 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
       if(mAbs(%angleDiff) > 80 && mAbs(%angleDiff) < 140)
       {
          %this.setEnergyLevel((%this.getEnergyPercent() * 100) + 4);
-         // %this.mountImage(slipstreamLongDriftImage, 1);
          %this.mountImage(%this.longDriftImage, 1);
       }
       else if (%turning)
       {
          %this.setEnergyLevel((%this.getEnergyPercent() * 100) + 3);
-         // %this.mountImage(slipstreamDriftImage, 1);
          %this.mountImage(%this.driftImage, 1);
       }
 
       %this.AddVelocity(%forceVector);
    }
 
-   // %this.setEnergyLevel(100);
    %this.driftTick = %this.schedule(40, driftTick);
 }
 
@@ -451,7 +438,6 @@ function Player::auraTick(%this)
    {
       if(!(%this.currentAuraImage $= %this.crouchTrailImage))
       {
-         // %this.mountImage("slipstreamAuraBaseCrouchImage", 3);
          %this.mountImage(%this.crouchTrailImage, 3);
       }
    }
