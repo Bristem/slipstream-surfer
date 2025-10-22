@@ -87,18 +87,9 @@ function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
 		commandToClient(%this.client, 'BottomPrint', "<font:lucida console:19>" @ %text, 0.25, 1);
 	}
 
-   if(getSimTime() - %this.spawnTime > $Game::PlayerInvulnerabilityTime && getWord(%this.position, 2) < 0.3) // force respawn on ground plane
+   if(getSimTime() - %this.spawnTime > $Game::PlayerInvulnerabilityTime && getWord(%this.position, 2) < 0.3) // force death on ground plane
    {
       %this.kill();
-      // if(isObject(%this.client)) 
-      // {
-      //    %this.player.kill();
-      //    //%this.client.instantRespawn();
-      // }
-      // else 
-      // {
-      //    %this.kill();
-      // }
 
       return;
 	}
