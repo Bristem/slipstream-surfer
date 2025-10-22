@@ -273,10 +273,8 @@ function Player::isAirborne(%this) // thank you space guy
 
       if(isObject(%col) && (%col.getType() & %targets) && %col.isColliding())
       {
-         talk(false);
          return false;
-      }
-      talk(true); 
+      } 
       return true;
 }
 
