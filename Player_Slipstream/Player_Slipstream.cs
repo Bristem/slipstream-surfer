@@ -35,10 +35,9 @@ function PlayerBoostArmor::onNewDataBlock(%this, %obj)
    %obj.hasBoosted = false;
    %obj.isDrifting = false;
    %obj.driftStoredSpeed = 0;
-   %obj.driftCounter = 0;
    %obj.auraImage = "0";
 
-   %obj.driftCounterLimit = 30;
+   %obj.schedule(1, setEnergyLevel, 0);
 }
 
 function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
@@ -438,14 +437,14 @@ function Player::auraTick(%this)
    {
       if(!(%this.auraImage $= "slipstreamAuraBaseCrouchImage"))
       {
-         %this.mountImage(slipstreamAuraBaseCrouchImage, 3);
+         %this.mountImage("slipstreamAuraBaseCrouchImage", 3);
       }
    }
    else
    {
       if(!(%this.auraImage $= "slipstreamAuraBaseImage"))
       {
-         %this.mountImage(slipstreamAuraBaseImage, 3);  
+         %this.mountImage("slipstreamAuraBaseImage", 3);
       }
    }
    
