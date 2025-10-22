@@ -3,6 +3,10 @@ design gamemode objects
     spring
     dash panel
     boost ring
+
+
+design test map 
+
 design ramp optimizer script
     search through brickgroup for all modter ramps
         replace all ramps with static shape of the blb?
@@ -21,6 +25,7 @@ add stomp emitter and sound
 
 -----tertiary-----
 fix audio being weird in first person. centered on player which screws with direction?
+grind rails?
 
 
 

@@ -352,12 +352,10 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
          if (%this.getEnergyPercent() == 1)
          {
             %this.playAudio(1, slipstreamSlingReadySound);
-            %this.mountImage(slipstreamLongDriftImage, 1);
             %this.slingshotCharged = true;
          }
          else
          {
-            %this.mountImage(slipstreamDriftImage, 1);
             %this.slingshotCharged = false;
          }
       }
@@ -374,7 +372,7 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
 
       %turning = true;
       // talk(%angleDiff);
-      if(%angleDiff < -10) // player aim is clockwise to velocity
+      if(%angleDiff < -10) // if player aim is clockwise to velocity, aka when turning right
       {
          %forceVector = getWord(%velVector, 1) SPC getWord(%velVector, 0) * -1 SPC "0";
       }
@@ -386,19 +384,27 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
       {
          %forceVector = "0 0 0";
          %turning = false;
+         %this.unmountImage(1);
       }
 
       if(mAbs(%angleDiff) > 120)
       {
          %forceVector = vectorScale(%forwardVector, 6);
-         %this.setEnergyLevel((%this.getEnergyPercent() * 100) + 6);
-         
       }
       else
       {
          %forceVector = vectorScale(%forceVector, 2);
-         if(%turning)
-            %this.setEnergyLevel((%this.getEnergyPercent() * 100) + 3);
+      }
+
+      if(mAbs(%angleDiff) > 80 && mAbs(%angleDiff) < 140)
+      {
+         %this.setEnergyLevel((%this.getEnergyPercent() * 100) + 4);
+         %this.mountImage(slipstreamLongDriftImage, 1);
+      }
+      else if (%turning)
+      {
+         %this.setEnergyLevel((%this.getEnergyPercent() * 100) + 3);
+         %this.mountImage(slipstreamDriftImage, 1);
       }
 
       %this.AddVelocity(%forceVector);
