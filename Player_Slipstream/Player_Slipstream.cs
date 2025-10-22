@@ -35,9 +35,16 @@ function PlayerBoostArmor::onNewDataBlock(%this, %obj)
    %obj.hasBoosted = false;
    %obj.isDrifting = false;
    %obj.driftStoredSpeed = 0;
-   %obj.auraImage = "0";
 
-   %obj.schedule(1, setEnergyLevel, 0);
+   %obj.currentAuraImage = "0";
+   %obj.trailImage = slipstreamAuraBaseImage;
+   %obj.crouchTrailImage = slipstreamAuraBaseCrouchImage;
+   %obj.boostTrailImage = slipstreamBoostTrailImage;
+   %obj.driftImage = slipstreamDriftImage;
+   %obj.longDriftImage = slipstreamLongDriftImage;
+
+
+   %obj.schedule(1, setEnergyLevel, 0); // should probably find some onspawn function but this works i guess
 }
 
 function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
@@ -227,7 +234,8 @@ function Player::triggerSlingshot(%this)
    // }
 
    %this.unmountImage(1);
-   %this.mountImage(slipstreamBoostTrailImage, 0);
+   // %this.mountImage(slipstreamBoostTrailImage, 0);
+   %this.mountImage(%this.boostTrailImage, 0);
    %this.schedule(1000, "unmountImage", 0);
 
    if(isEventPending(%this.auraTick) == 0)
@@ -272,6 +280,8 @@ function Player::triggerSlingshot(%this)
 // Do not touch the ground plane with this active it does not like that
 // 2 lazy to find the typemask for whatever contain that
 // edit  ok it just echoes errors out in console theyre harmless i think
+
+// TODO: switch off raycasts they kind of suck
 function Player::isAirborne(%this) // thank you space guy
 {
       %pos = %this.getPosition();
@@ -281,8 +291,10 @@ function Player::isAirborne(%this) // thank you space guy
 
       if(isObject(%col) && (%col.getType() & %targets) && %col.isColliding())
       {
+         talk(false);
          return false;
       }
+      talk(true); 
       return true;
 }
 
@@ -398,12 +410,14 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
       if(mAbs(%angleDiff) > 80 && mAbs(%angleDiff) < 140)
       {
          %this.setEnergyLevel((%this.getEnergyPercent() * 100) + 4);
-         %this.mountImage(slipstreamLongDriftImage, 1);
+         // %this.mountImage(slipstreamLongDriftImage, 1);
+         %this.mountImage(%this.longDriftImage, 1);
       }
       else if (%turning)
       {
          %this.setEnergyLevel((%this.getEnergyPercent() * 100) + 3);
-         %this.mountImage(slipstreamDriftImage, 1);
+         // %this.mountImage(slipstreamDriftImage, 1);
+         %this.mountImage(%this.driftImage, 1);
       }
 
       %this.AddVelocity(%forceVector);
@@ -430,25 +444,26 @@ function Player::auraTick(%this)
    if(%this.getSpeedInBPS() < 30 && !(%this.isDrifting))
    {
       %this.unmountImage(3);
-      %this.auraImage = "0";
+      %this.currentAuraImage = "0";
       return;
    }
    if(%this.isCrouched())
    {
-      if(!(%this.auraImage $= "slipstreamAuraBaseCrouchImage"))
+      if(!(%this.currentAuraImage $= %this.crouchTrailImage))
       {
-         %this.mountImage("slipstreamAuraBaseCrouchImage", 3);
+         // %this.mountImage("slipstreamAuraBaseCrouchImage", 3);
+         %this.mountImage(%this.crouchTrailImage, 3);
       }
    }
    else
    {
-      if(!(%this.auraImage $= "slipstreamAuraBaseImage"))
+      if(!(%this.currentAuraImage $= %this.trailImage))
       {
-         %this.mountImage("slipstreamAuraBaseImage", 3);
+         %this.mountImage(%this.trailImage, 3);
       }
    }
    
-   %this.auraImage = %this.getMountedImage(3).getName();
+   %this.currentAuraImage = %this.getMountedImage(3).getName();
    %this.auraTick = %this.schedule(50, auraTick);
 }
 
