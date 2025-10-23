@@ -28,3 +28,8 @@ datablock AudioProfile(slipstreamAirdashSound : slipstreamSlingshotSound)
 {
    filename    = "Add-Ons/Server_Slipstream/assets/sounds/airdash.wav";
 };
+
+datablock AudioProfile(slipstreamAirdashChargeSound : radioWaveExplosionSound)
+{
+   filename    = "Add-Ons/Server_Slipstream/assets/sounds/dashRecharge.wav";
+};

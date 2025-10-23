@@ -308,6 +308,21 @@ function Player::airBoostTick(%this)  // tick check to see if we are still airbo
    if(!%this.isAirborne())
    {
       %this.hasBoosted = false;
+      %this.spawnExplosion(radioWaveProjectile);
+
+      // %p = new Projectile()
+      // {
+      //    dataBlock = slipstreamAirdashChargeExplosionProjectile;
+      //    initialPosition = %this.getPosition();
+      //    initialVelocity = "0 0 -1";
+      //    sourceObject = %this;
+      //    client = %this.client;
+      //    sourceSlot = 0;
+      //    originPoint = %pos;
+      // };
+      // %p.setScale("1 1 1");
+      // %p.explode();
+
       return;
    }
 

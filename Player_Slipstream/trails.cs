@@ -25,6 +25,33 @@ datablock ProjectileData(slipstreamExplosionProjectile) {
    lifetime       = 10;
 };
 
+
+// air dash charge
+// THIS SHIT DONT WORK. FIGURE IT OUT
+datablock ParticleData(slipstreamAirdashChargeParticle : radioWaveExplosionParticle)
+{
+	textureName = "base/data/particles/star1";
+};
+
+datablock ParticleEmitterData(slipstreamAirdashChargeExplosionEmitter : radioWaveExplosionEmitter)
+{
+	particles = "slipstreamAirdashChargeParticle";
+	uiName = "";
+};
+
+datablock ExplosionData(slipstreamAirdashChargeExplosion : radioWaveExplosion)
+{
+	soundProfile = "slipstreamAirdashChargeSound";
+	particleEmitter = "slipstreamAirdashCharge	ExplosionEmitter";
+};
+
+datablock ProjectileData(slipstreamAirdashChargeExplosionProjectile : slipstreamExplosionProjectile)
+{
+	explosion = "slipstreamAirdashChargeExplosion";
+};
+
+
+
 // drift particles
 
 datablock ParticleEmitterData(slipstreamDriftEmitter : vehicleBubbleEmitter)
