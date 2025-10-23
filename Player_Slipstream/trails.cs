@@ -51,6 +51,7 @@ datablock ShapeBaseImageData(slipstreamDriftImage)
 datablock ParticleEmitterData(slipstreamLongDriftEmitter : vehicleSplashEmitter)
 {
 	lifetimeMS = 0;
+	ejectionOffset = 0.1;
 };
 
 datablock ShapeBaseImageData(slipstreamLongDriftImage : slipstreamDriftImage)
