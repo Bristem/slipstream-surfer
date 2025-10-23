@@ -60,8 +60,39 @@ datablock ShapeBaseImageData(slipstreamLongDriftImage : slipstreamDriftImage)
 
 // aura particles
 
+// datablock ParticleData(slipstreamAuraBaseParticle) {
+// 	textureName = "./auraA";
+
+// 	dragCoefficient = 0;
+// 	gravityCoefficient = 0;
+// 	inheritedVelFactor = 0;
+// 	windCoefficient = 0;
+
+// 	constantAcceleration = 0;
+// 	useInvAlpha = 1;
+// 	spinSpeed = 0;
+
+// 	lifetimeMS = 300;
+// 	lifetimeVarianceMS = 0;
+
+// 	spinRandomMin = 0;
+// 	spinRandomMax = 0;
+
+// 	colors[0] = "1 1 1 0.15";
+// 	colors[1] = "1 1 1 0";
+// 	colors[2] = "1 1 1 0";
+
+// 	sizes[0] = 3;
+// 	sizes[1] = 2;
+// 	sizes[2] = 0;
+
+// 	times[0] = 0;
+// 	times[1] = 0.9;
+// 	times[2] = 1;
+// };
+
 datablock ParticleData(slipstreamAuraBaseParticle) {
-	textureName = "./auraA";
+	textureName = "base/data/particles/dot.png";
 
 	dragCoefficient = 0;
 	gravityCoefficient = 0;
@@ -82,9 +113,9 @@ datablock ParticleData(slipstreamAuraBaseParticle) {
 	colors[1] = "1 1 1 0";
 	colors[2] = "1 1 1 0";
 
-	sizes[0] = 3;
-	sizes[1] = 2;
-	sizes[2] = 0;
+	sizes[0] = 1.5;
+	sizes[1] = 1;
+	sizes[2] = 0.25;
 
 	times[0] = 0;
 	times[1] = 0.9;
@@ -131,11 +162,7 @@ datablock ShapeBaseImageData(slipstreamAuraBaseImage) {
 
 datablock ParticleData(slipstreamAuraBaseCrouchParticle : slipstreamAuraBaseParticle)
 {
-	textureName = "base/data/particles/dot.png";
-
-	sizes[0] = 1;
-	sizes[1] = 0.5;
-	sizes[2] = 0;
+	sizes[2] = 0.15;
 };
 
 datablock ParticleEmitterData(slipstreamAuraBaseCrouchEmitter: slipstreamAuraBaseEmitter)
