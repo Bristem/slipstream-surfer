@@ -157,7 +157,7 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
 function Player::triggerAirDash(%this)
 {
    %this.hasBoosted = true;
-   %this.airBoostTick();
+   %this.airDashTick();
 
    
    // angle difference between velocity and player cam direction
@@ -259,46 +259,55 @@ function Player::triggerSlingshot(%this)
    %p.explode();
 }
 
+// raycasts still cast a far wide net and will end up working on some walls
 function Player::isAirborne(%this) // thanks to Eagle517 for the ExtraConsoleMethods dll
 {
-   %check = getWord(%this.getContactInfo(), 0); // returns 1 if on walkable or jumpable surface
-   if(!%check)
+   %check = getWord(%this.findContact(), 0); // returns 1 if on walkable or jumpable surface
+   if(!%check) // as assurance we use raycasts if we find no collision
    {
       %pos = %this.getPosition();
       %targets = $TypeMasks::FxBrickAlwaysObjectType | $TypeMasks::PlayerObjectType | $TypeMasks::StaticObjectType | $TypeMasks::TerrainObjectType | $TypeMasks::VehicleObjectType;
-      %ray = ContainerRayCast(%pos, vectorAdd(%pos,"0 0 -0.627"), %targets, %this);
-      %col = getWord(%ray,0);
+      %ray[0] = ContainerRayCast(%pos, vectorAdd(%pos,".627 .627 -0.25"), %targets, %this);
+      %ray[1] = ContainerRayCast(%pos, vectorAdd(%pos,".627 -.627 -0.25"), %targets, %this);
+      %ray[2] = ContainerRayCast(%pos, vectorAdd(%pos,"-.627 .627 -0.25"), %targets, %this);
+      %ray[3] = ContainerRayCast(%pos, vectorAdd(%pos,"-.627 -.627 -0.25"), %targets, %this);
+      %ray[4] = ContainerRayCast(%pos, vectorAdd(%pos,"0 0 -0.3"), %targets, %this);
 
-      if(isObject(%col) && (%col.getType() & %targets) && %col.isColliding())
+      for(%i = 0; %i < 5; %i++)
       {
-         return false;
-      } 
+         %col = getWord(%ray[%i],0);
+         if(isObject(%col) && (%col.getType() & %targets) && %col.isColliding())
+         {
+            return false;
+         } 
+      }
       return true;
+
+
    }
    return false;
 }
 
-// Do not touch the ground plane with this active it does not like that
-// 2 lazy to find the typemask for whatever contain that
-// edit  ok it just echoes errors out in console theyre harmless i think
-
-// function Player::isAirborne(%this) // thank you space guy
+// function Player::airtest(%this)
 // {
-//       %pos = %this.getPosition();
-//       %targets = $TypeMasks::FxBrickAlwaysObjectType | $TypeMasks::PlayerObjectType | $TypeMasks::StaticObjectType | $TypeMasks::TerrainObjectType | $TypeMasks::VehicleObjectType;
-//       %ray = ContainerRayCast(%pos, vectorAdd(%pos,"0 0 -0.627"), %targets, %this);
-//       %col = getWord(%ray,0);
-
-//       if(isObject(%col) && (%col.getType() & %targets) && %col.isColliding())
-//       {
-//          return false;
-//       } 
-//       return true;
+//    cancel(%this.airtest);
+//    if(%this.getState() $= "Dead") 
+//    {
+//       return;
+// 	}
+	
+//    if(!%this.isAirborne())
+//    {
+//       talk("Ground");
+//    }
+//    else
+//       talk("Air");
+//    %this.airtest = %this.schedule(50, airtest);
 // }
 
-function Player::airBoostTick(%this)  // tick check to see if we are still airborne after airboost
+function Player::airDashTick(%this)  // tick check to see if we are still airborne after airboost
 {
-   cancel(%this.airBoostTick);
+   cancel(%this.airDashTick);
    if(%this.getState() $= "Dead") 
    {
 		%this.hasBoosted = false;
@@ -314,7 +323,7 @@ function Player::airBoostTick(%this)  // tick check to see if we are still airbo
       // {
       //    dataBlock = slipstreamAirdashChargeExplosionProjectile;
       //    initialPosition = %this.getPosition();
-      //    initialVelocity = "0 0 -1";
+      //    initialVelocity = "0 0 -0.5";
       //    sourceObject = %this;
       //    client = %this.client;
       //    sourceSlot = 0;
@@ -326,7 +335,7 @@ function Player::airBoostTick(%this)  // tick check to see if we are still airbo
       return;
    }
 
-   %this.airBoostTick = %this.schedule(30, airBoostTick);
+   %this.airDashTick = %this.schedule(10, airDashTick);
 }
 
 // TODO : progress drift energy charge, with charge emitters (star orbits?). adjust existing emitter logics.
