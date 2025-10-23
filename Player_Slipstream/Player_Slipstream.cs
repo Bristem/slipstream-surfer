@@ -261,9 +261,21 @@ function Player::triggerSlingshot(%this)
 
 function Player::isAirborne(%this) // thanks to Eagle517 for the ExtraConsoleMethods dll
 {
-   %check = %this.getContactInfo();
-   talk(getWord(!%check, 0));
-   return getWord(!%check, 0);
+   %check = getWord(%this.getContactInfo(), 0); // returns 1 if on walkable or jumpable surface
+   if(!%check)
+   {
+      %pos = %this.getPosition();
+      %targets = $TypeMasks::FxBrickAlwaysObjectType | $TypeMasks::PlayerObjectType | $TypeMasks::StaticObjectType | $TypeMasks::TerrainObjectType | $TypeMasks::VehicleObjectType;
+      %ray = ContainerRayCast(%pos, vectorAdd(%pos,"0 0 -0.627"), %targets, %this);
+      %col = getWord(%ray,0);
+
+      if(isObject(%col) && (%col.getType() & %targets) && %col.isColliding())
+      {
+         return false;
+      } 
+      return true;
+   }
+   return false;
 }
 
 // Do not touch the ground plane with this active it does not like that
@@ -299,7 +311,7 @@ function Player::airBoostTick(%this)  // tick check to see if we are still airbo
       return;
    }
 
-   %this.airBoostTick = %this.schedule(30, airBoostTick);
+   %this.airBoostTick = %this.schedule(20, airBoostTick);
 }
 
 // TODO : progress drift energy charge, with charge emitters (star orbits?). adjust existing emitter logics.
