@@ -259,24 +259,30 @@ function Player::triggerSlingshot(%this)
    %p.explode();
 }
 
+function Player::isAirborne(%this) // thanks to Eagle517 for the ExtraConsoleMethods dll
+{
+   %check = %this.getContactInfo();
+   talk(getWord(!%check, 0));
+   return getWord(!%check, 0);
+}
+
 // Do not touch the ground plane with this active it does not like that
 // 2 lazy to find the typemask for whatever contain that
 // edit  ok it just echoes errors out in console theyre harmless i think
 
-// TODO: switch off raycasts they kind of suck
-function Player::isAirborne(%this) // thank you space guy
-{
-      %pos = %this.getPosition();
-      %targets = $TypeMasks::FxBrickAlwaysObjectType | $TypeMasks::PlayerObjectType | $TypeMasks::StaticObjectType | $TypeMasks::TerrainObjectType | $TypeMasks::VehicleObjectType;
-      %ray = ContainerRayCast(%pos, vectorAdd(%pos,"0 0 -0.627"), %targets, %this);
-      %col = getWord(%ray,0);
+// function Player::isAirborne(%this) // thank you space guy
+// {
+//       %pos = %this.getPosition();
+//       %targets = $TypeMasks::FxBrickAlwaysObjectType | $TypeMasks::PlayerObjectType | $TypeMasks::StaticObjectType | $TypeMasks::TerrainObjectType | $TypeMasks::VehicleObjectType;
+//       %ray = ContainerRayCast(%pos, vectorAdd(%pos,"0 0 -0.627"), %targets, %this);
+//       %col = getWord(%ray,0);
 
-      if(isObject(%col) && (%col.getType() & %targets) && %col.isColliding())
-      {
-         return false;
-      } 
-      return true;
-}
+//       if(isObject(%col) && (%col.getType() & %targets) && %col.isColliding())
+//       {
+//          return false;
+//       } 
+//       return true;
+// }
 
 function Player::airBoostTick(%this)  // tick check to see if we are still airborne after airboost
 {
