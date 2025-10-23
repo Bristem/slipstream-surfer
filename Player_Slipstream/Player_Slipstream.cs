@@ -394,6 +394,10 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
       else if (%turning)
       {
          %this.setEnergyLevel((%this.getEnergyPercent() * 100) + 3);
+         %this.mountImage(%this.longDriftImage, 1);
+      }
+      else
+      {
          %this.mountImage(%this.driftImage, 1);
       }
 
