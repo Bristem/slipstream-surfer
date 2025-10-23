@@ -311,7 +311,7 @@ function Player::airBoostTick(%this)  // tick check to see if we are still airbo
       return;
    }
 
-   %this.airBoostTick = %this.schedule(20, airBoostTick);
+   %this.airBoostTick = %this.schedule(30, airBoostTick);
 }
 
 // TODO : progress drift energy charge, with charge emitters (star orbits?). adjust existing emitter logics.
