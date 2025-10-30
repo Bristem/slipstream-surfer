@@ -1,8 +1,16 @@
 -----priority-----
-design gamemode objects
-    spring
+figure out a proper way to detect object collision
+    current event_brickzones
+        breaks when duplicated, zones dont carry over, forcing player to reenter events
+        tick rate of 20ms does not detect fast moving players (120+ BPS or so)
+    we want to avoid playertouch and actual brick collision for smoothness
+        thorouhgly test high ping players with whatever collision method is found
+
+gamemode objects
     dash panel
+    spring
     boost ring
+    diagonal variants
 
 
 design test map 
