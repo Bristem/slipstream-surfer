@@ -24,5 +24,6 @@ else if(ForceRequiredAddOn("Item_Skis") == $Error::AddOn_NotFound)
 else
 {
    exec("./temptimer.cs");
-   exec("./Player_Slipstream/server.cs");
+   exec("./Player_Slipstream/main.cs");
+   exec("./Brick_Slipstream/main.cs");
 }
