@@ -262,6 +262,14 @@ function Player::triggerSlingshot(%this)
 // raycasts still cast a far wide net and will end up working on some walls
 function Player::isAirborne(%this) // thanks to Eagle517 for the ExtraConsoleMethods dll
 {
+   if (!(isFunction(%this.findContact())))
+   {
+      talk("Missing ExtraConsoleCommands DLL file!");
+
+      return false;
+   }
+   
+   
    %check = getWord(%this.findContact(), 0); // returns 1 if on walkable or jumpable surface
    if(!%check) // as assurance we use raycasts if we find no collision
    {
@@ -282,8 +290,6 @@ function Player::isAirborne(%this) // thanks to Eagle517 for the ExtraConsoleMet
          } 
       }
       return true;
-
-
    }
    return false;
 }

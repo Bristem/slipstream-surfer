@@ -16,15 +16,14 @@ design ramp optimizer script
 design first map
 
 -----secondary-----
-mount base aura to body? need to stop it flipping over
-drift emitter looks ugly
-boost emitter looks ugly
+create baseline emitters and make them look not ugly
 add sling boost sound logic (extend sound, run tick to end sound on slowdown, add mini boost sound)
 add stomp emitter and sound
     tick logic
 
 -----tertiary-----
 fix audio being weird in first person. centered on player which screws with direction?
+weird airdash airborne edge cases
 grind rails?
 
 
