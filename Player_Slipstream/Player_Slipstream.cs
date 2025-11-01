@@ -260,38 +260,40 @@ function Player::triggerSlingshot(%this)
 }
 
 // raycasts still cast a far wide net and will end up working on some walls
-function Player::isAirborne(%this) // thanks to Eagle517 for the ExtraConsoleMethods dll
+// strongly considering keeping this as a wall run tech though it feels very spammy
+// consider feedback if it ever gets discovered
+function Player::isAirborne(%this) // thanks to Eagle517 for the ExtraConsoleMethods
 {
    if (!(isFunction(%this.findContact())))
    {
-      talk("Missing ExtraConsoleCommands DLL file!");
-
-      return false;
+      // talk("Missing ExtraConsoleCommands DLL file!");
    }
-   
-   
-   %check = getWord(%this.findContact(), 0); // returns 1 if on walkable or jumpable surface
-   if(!%check) // as assurance we use raycasts if we find no collision
+   else
    {
-      %pos = %this.getPosition();
-      %targets = $TypeMasks::FxBrickAlwaysObjectType | $TypeMasks::PlayerObjectType | $TypeMasks::StaticObjectType | $TypeMasks::TerrainObjectType | $TypeMasks::VehicleObjectType;
-      %ray[0] = ContainerRayCast(%pos, vectorAdd(%pos,".627 .627 -0.25"), %targets, %this);
-      %ray[1] = ContainerRayCast(%pos, vectorAdd(%pos,".627 -.627 -0.25"), %targets, %this);
-      %ray[2] = ContainerRayCast(%pos, vectorAdd(%pos,"-.627 .627 -0.25"), %targets, %this);
-      %ray[3] = ContainerRayCast(%pos, vectorAdd(%pos,"-.627 -.627 -0.25"), %targets, %this);
-      %ray[4] = ContainerRayCast(%pos, vectorAdd(%pos,"0 0 -0.3"), %targets, %this);
-
-      for(%i = 0; %i < 5; %i++)
-      {
-         %col = getWord(%ray[%i],0);
-         if(isObject(%col) && (%col.getType() & %targets) && %col.isColliding())
-         {
-            return false;
-         } 
-      }
-      return true;
+      %check = getWord(%this.findContact(), 0); // returns 1 if on walkable or jumpable surface
+      if(%check == true)
+         return false;
    }
-   return false;
+   
+   // switch to raycasts if contact info fails
+   %pos = %this.getPosition();
+   %targets = $TypeMasks::FxBrickAlwaysObjectType | $TypeMasks::PlayerObjectType | $TypeMasks::StaticObjectType | $TypeMasks::TerrainObjectType | $TypeMasks::VehicleObjectType;
+   %ray[0] = ContainerRayCast(%pos, vectorAdd(%pos,".627 .627 -0.25"), %targets, %this);
+   %ray[1] = ContainerRayCast(%pos, vectorAdd(%pos,".627 -.627 -0.25"), %targets, %this);
+   %ray[2] = ContainerRayCast(%pos, vectorAdd(%pos,"-.627 .627 -0.25"), %targets, %this);
+   %ray[3] = ContainerRayCast(%pos, vectorAdd(%pos,"-.627 -.627 -0.25"), %targets, %this);
+   %ray[4] = ContainerRayCast(%pos, vectorAdd(%pos,"0 0 -0.3"), %targets, %this);
+
+   for(%i = 0; %i < 5; %i++)
+   {
+      %col = getWord(%ray[%i],0);
+      if(isObject(%col) && (%col.getType() & %targets) && %col.isColliding())
+      {
+         return false;
+      } 
+   }
+
+   return true;
 }
 
 // function Player::airtest(%this)
