@@ -27,7 +27,7 @@ datablock fxDTSBrickData(BrickBoosterData)
 	orientationFix = 3;
 
 	isBooster = 1;
-	boosterPower = 50; //Velocity that the player is sped up by.
+	boosterPower = 60; 
 };
 
 
@@ -53,6 +53,11 @@ function fxDTSBrick::Booster(%this, %player, %power, %do) //Makes boosters boost
 		else
 			%vel = %db.boosterPower;
 
+		if(%player.getSpeedInBPS() / 2 > %vel)
+		{
+			%vel = %player.getSpeedInBPS() / 2;
+		}
+
 		%addvel = "0 0" SPC $Platformer::Booster::AddZVel;
 		%addvel = VectorScale(%addvel, (%vel / $Platformer::Booster::UpDivFactor) + 1);
 
@@ -63,7 +68,8 @@ function fxDTSBrick::Booster(%this, %player, %power, %do) //Makes boosters boost
 		%vel = %vel SPC "0 0";
 		%vel = rotateVector(%vel, "0 0 0", %ang);
 		%vel = VectorAdd(%vel, %addvel);
-		%player.addVelocity(%vel);
+
+		%player.setVelocity(%vel);
 		ServerPlay3D(BoosterSound, %this.getPosition());
 		%player.lastBoost = getSimTime();
 	}
