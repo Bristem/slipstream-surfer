@@ -52,7 +52,8 @@ function fxDTSBrick::Booster(%this, %player, %power, %do) //Makes boosters boost
 			%vel = %power;
 		else
 			%vel = %db.boosterPower;
-
+		
+		// TODO add check for angle being close enough to booster's orientation, probably same as airdash
 		if(%player.getSpeedInBPS() / 2 > %vel)
 		{
 			%vel = %player.getSpeedInBPS() / 2;
@@ -70,7 +71,9 @@ function fxDTSBrick::Booster(%this, %player, %power, %do) //Makes boosters boost
 		%vel = VectorAdd(%vel, %addvel);
 
 		%player.setVelocity(%vel);
-		ServerPlay3D(BoosterSound, %this.getPosition());
+		// ServerPlay3D(BoosterSound, %this.getPosition());
+		%player.stopAudio(3);
+		%player.playAudio(3, BoosterSound);
 		%player.lastBoost = getSimTime();
 	}
 }
@@ -131,6 +134,7 @@ package slipstreamBoosterPlantPackage
 		}
 		parent::onPlant( %obj );
 		%obj.setColliding(0);
+		// %obj.setItem("HammerItem");
 	}
 };
 activatePackage(slipstreamBoosterPlantPackage);
