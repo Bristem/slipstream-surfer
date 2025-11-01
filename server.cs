@@ -18,6 +18,10 @@ else if(ForceRequiredAddOn("Item_Skis") == $Error::AddOn_NotFound)
 {
    error("ERROR: Player_Slipstream - required add-on Item_Skis not found");
 }
+else if(ForceRequiredAddOn("Event_BrickZones") == $Error::AddOn_NotFound)
+{
+   error("ERROR: Event_BrickZones - required add-on Event_BrickZones not found");
+}
 
 
 

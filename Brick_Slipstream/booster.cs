@@ -1,9 +1,9 @@
 // Sound assets, model, and a lot of functionality ripped from Ottosparks and Armageddon's platformer bricks
 
 //GLOBALS
-$Platformer::Booster::BoosterEventWait = 100; //A schedule is used to slightly delay the booster's default function. This allows for the doBooster event to work alongside normal boosters.
+// $Platformer::Booster::BoosterEventWait = 100; //A schedule is used to slightly delay the booster's default function. This allows for the doBooster event to work alongside normal boosters.
 $Platformer::Booster::AddZVel = 0.5; //Upwards velocity added with boosters to help out with friction.
-$Platformer::Booster::Timeout = 500; //So players don't get boosted tons of times.
+// $Platformer::Booster::Timeout = 500; //So players don't get boosted tons of times.
 $Platformer::Booster::UpDivFactor = 25; //The velocity of a booster is divided by this to scale the upwards velocity, allowing for better boosting results.
 
 
@@ -26,6 +26,7 @@ datablock fxDTSBrickData(BrickBoosterData)
 
 	orientationFix = 3;
 
+	isBooster = 1;
 	boosterPower = 50; //Velocity that the player is sped up by.
 };
 
@@ -66,11 +67,6 @@ function fxDTSBrick::Booster(%this, %player, %power, %do) //Makes boosters boost
 		ServerPlay3D(BoosterSound, %this.getPosition());
 		%player.lastBoost = getSimTime();
 	}
-	else
-	{
-		%this.onBooster(%player);
-		%player.booster = %this.schedule($Platformer::Booster::BoosterEventWait, Booster, %player, %power, true);
-	}
 }
 
 function fxDTSBrick::doBooster(%this, %power, %client) //The event that allows for custom power. Gotta go faster.
@@ -105,6 +101,36 @@ function fxDTSBrick::onBooster(%this, %player)
 }
 
 //PACKAGE
+
+package slipstreamBoosterPlantPackage
+{
+	function fxDTSBrick::onPlant(%obj)
+	{
+		%data = %obj.getDataBlock();
+		
+		//apply events
+		if(%data.isBooster)
+		{
+			%obj.eventDelay0 = 0;
+			%obj.eventEnabled0 = 1;
+			%obj.eventInput0 = "onPlayerEnterBrick";
+			%obj.eventInputIdx0 = inputEvent_GetInputEventIdx("onPlayerEnterBrick");
+			%obj.eventOutput0 = "doBooster";
+			%obj.eventOutputAppendClient0 = 1;
+			%obj.eventOutputIdx0 = outputEvent_GetOutputEventIdx("fxDTSBrick","doBooster");//37;
+			%obj.eventOutputParameter0_1 = 60;
+			%obj.eventTarget0 = "Self";
+			%obj.eventTargetIdx0 = 0;
+			%obj.numEvents = 1;
+		}
+		parent::onPlant( %obj );
+		%obj.setColliding(0);
+	}
+};
+activatePackage(slipstreamBoosterPlantPackage);
+
+
+
 // package Platformer_Booster
 // {
 // 	function fxDTSBrickData::onPlant(%this, %obj)
