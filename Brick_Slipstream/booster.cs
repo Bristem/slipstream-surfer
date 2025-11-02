@@ -1,4 +1,4 @@
-// Sound assets, model, and a lot of functionality ripped from Ottosparks and Armageddon's platformer bricks
+// Sound assets, placeholder model, and a lot of functionality ripped from Ottosparks and Armageddon's platformer bricks
 
 //GLOBALS
 // $Platformer::Booster::BoosterEventWait = 100; //A schedule is used to slightly delay the booster's default function. This allows for the doBooster event to work alongside normal boosters.

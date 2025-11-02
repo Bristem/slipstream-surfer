@@ -4,21 +4,25 @@ proper brick collision
         add teleport to dobooster event
             may want to focus on order of speed check before teleporting
 
+animated objects
+    check item_seagull
+    apply to booster
+extend booster collision  
+    extend height without pushing model upward
+diagonal variants
 
-gamemode objects
-    dash panel
+other gamemode objects
     spring
     boost ring
-    diagonal variants
-
-
-design test map 
+    grind rails?
 
 design ramp optimizer script
     search through brickgroup for all modter ramps
         replace all ramps with static shape of the blb?
         replace all ramps with an elongated shape of the blb?
         i dont bloody know
+
+design test map 
 
 design first map
 
