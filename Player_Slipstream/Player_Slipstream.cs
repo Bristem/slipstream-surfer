@@ -140,10 +140,14 @@ function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on)
    {
       if(%on)
       {
-         %obj.isDrifting = true;
-         %obj.driftStoredSpeed = %obj.getSpeedInBPS();
-         cancel(%obj.driftTick);
-         %obj.driftTick();
+
+         if(%obj.getSpeedInBPS() > 35)
+         {
+            %obj.isDrifting = true;
+            %obj.driftStoredSpeed = %obj.getSpeedInBPS();
+            cancel(%obj.driftTick);
+            %obj.driftTick();
+         }
       }
       if(!%on)
       {
@@ -352,6 +356,8 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
 {
    cancel(%this.driftTick);
    
+   talk(%this.driftStoredSpeed);
+
    if(%this.getState() $= "Dead") 
    {
       %this.setEnergyLevel(0);
@@ -370,11 +376,11 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
       return;
    }
 
-   if(%this.driftStoredSpeed < 25)
-   {
-      %this.stopAudio(2);
-      return;
-   }
+   // if(%this.driftStoredSpeed < 25)
+   // {
+   //    %this.stopAudio(2);
+   //    return;
+   // }
 
    %isInAir = %this.isAirborne();
    if(%isInAir)
@@ -383,10 +389,16 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
       %this.slingshotCharged = false;
       %this.stopAudio(2);
       %this.unmountImage(1);
+      %this.driftStoredSpeed = 0;
    }
    else
    {
       %this.playAudio(2, slipstreamDriftingSound);
+
+      if(%this.driftStoredSpeed == 0)
+      {
+         %this.driftStoredSpeed = %this.getSpeedInBPS();
+      }
 
       if(!%this.slingshotCharged)
       {
@@ -401,7 +413,6 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
          }
       }
 
-      
    }
 
    // drift turning
