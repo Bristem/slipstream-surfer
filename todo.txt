@@ -1,7 +1,6 @@
 -----priority-----
 proper brick collision 
     event_brickzones and doTeleport
-        package duplication to run checkforzoneevents or whatever the func is
         add teleport to dobooster event
             may want to focus on order of speed check before teleporting
 
