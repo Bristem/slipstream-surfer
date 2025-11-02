@@ -355,8 +355,6 @@ function Player::airDashTick(%this)  // tick check to see if we are still airbor
 function Player::driftTick(%this) // drift cooldown and timer, applying emitter logic
 {
    cancel(%this.driftTick);
-   
-   talk(%this.driftStoredSpeed);
 
    if(%this.getState() $= "Dead") 
    {
