@@ -131,9 +131,9 @@ package slipstreamBoosterPlantPackage
 			%obj.eventTarget0 = "Self";
 			%obj.eventTargetIdx0 = 0;
 			%obj.numEvents = 1;
+			%obj.setColliding(0);
 		}
 		parent::onPlant( %obj );
-		%obj.setColliding(0);
 		// %obj.setItem("HammerItem");
 	}
 };
