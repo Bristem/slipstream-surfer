@@ -2,9 +2,9 @@
 
 //GLOBALS
 // $Platformer::Booster::BoosterEventWait = 100; //A schedule is used to slightly delay the booster's default function. This allows for the doBooster event to work alongside normal boosters.
-$Platformer::Booster::AddZVel = 0.5; //Upwards velocity added with boosters to help out with friction.
+// $Platformer::Booster::AddZVel = 0.5; //Upwards velocity added with boosters to help out with friction.
 // $Platformer::Booster::Timeout = 500; //So players don't get boosted tons of times.
-$Platformer::Booster::UpDivFactor = 25; //The velocity of a booster is divided by this to scale the upwards velocity, allowing for better boosting results.
+// $Platformer::Booster::UpDivFactor = 25; //The velocity of a booster is divided by this to scale the upwards velocity, allowing for better boosting results.
 
 
 //DATABLOCKS
@@ -59,16 +59,12 @@ function fxDTSBrick::Booster(%this, %player, %power, %do) //Makes boosters boost
 			%vel = %player.getSpeedInBPS() / 2;
 		}
 
-		%addvel = "0 0" SPC $Platformer::Booster::AddZVel;
-		%addvel = VectorScale(%addvel, (%vel / $Platformer::Booster::UpDivFactor) + 1);
-
 		%ang = %this.getAngleID() + 1;
 		if(%ang > 3)
 			%ang -= 4;
 
 		%vel = %vel SPC "0 0";
 		%vel = rotateVector(%vel, "0 0 0", %ang);
-		%vel = VectorAdd(%vel, %addvel);
 
 		%player.setVelocity(%vel);
 		// ServerPlay3D(BoosterSound, %this.getPosition());
