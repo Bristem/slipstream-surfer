@@ -31,14 +31,13 @@ create baseline emitters and make them look not ugly
 add sling boost sound logic (extend sound, run tick to end sound on slowdown, add mini boost sound)
 add stomp emitter and sound
     tick logic
+leeway for slingshots for a second or two > air slingshots?
 
 -----tertiary-----
 fix audio being weird in first person. centered on player which screws with direction?
 weird airdash airborne edge cases
+player powerups?
 grind rails?
-
-
-
 
 
 

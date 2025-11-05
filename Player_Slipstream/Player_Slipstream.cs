@@ -27,7 +27,9 @@ datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
    runForce = 3500;
    maxStepHeight = 0;
 };
-
+// ===================================== //
+//        Player and DB Functions
+// ===================================== //
 function PlayerBoostArmor::onNewDataBlock(%this, %obj) 
 {
 	%obj.surfTick();
@@ -97,6 +99,7 @@ function Player::surfTick(%this) //shamelessly ripped timer from gamemode surf
 	%this.surfTick = %this.schedule(50, surfTick);
 }
 
+// kill player for touching water. maybe make this a toggle in the future
 function PlayerBoostArmor::onEnterLiquid(%this, %obj, %coverage, %type)
 {
    Parent::onEnterLiquid(%data, %obj, %coverage, %type);
@@ -105,16 +108,8 @@ function PlayerBoostArmor::onEnterLiquid(%this, %obj, %coverage, %type)
    %obj.damage(%obj, %obj.getPosition(), 10000, $DamageType::Lava);
 }
 
-function Player::getSpeedInBPS(%this, %obj) // bricks per second, thanks to Buddy for this
-{
-   return vectorLen(%this.getVelocity()) * 2;
-}
-
 // ripped impulse jump from tf2 scout pack
 // thank you space guy and co
-
-// TODO: speed check and emitter for going fast, scales up, sound effect
-// TODO: mount temporary image on air dash and slingshot, plus sound
 function PlayerBoostArmor::onTrigger(%this,%obj,%slot,%on) 
 {
    %r = Parent::onTrigger(%this,%obj,%slot,%on);
@@ -167,7 +162,7 @@ function Player::triggerAirDash(%this)
    // angle difference between velocity and player cam direction
    %velocityVector = vectorNormalize(%this.getHorizontalVelocityVector());
    %forwardVector = vectorNormalize(%this.getForwardVector());
-   %angleDiff = angleBetweenVectors(%velocityVector, %forwardVector) * (180 / $pi); // work in degrees pls
+   %angleDiff = angleBetweenVectors(%velocityVector, %forwardVector) * (180 / $pi); // stick to degrees
 
    if(%angleDiff > 10 || %this.getSpeedInBPS() < 60)
    {
@@ -202,21 +197,6 @@ function Player::triggerAirDash(%this)
    };
    %p.setScale(%scaleFactor * 2 SPC %scaleFactor * 2 SPC %scaleFactor * 2);
    %p.explode();
-}
-
-function angleBetweenVectors(%vecA, %vecB)
-{
-   %dot = vectorDot(%vecA, %vecB);
-   return mAcos(%dot);
-}
-
-function signedAngleBetweenVectors(%vecA, %vecB)
-{
-   %angle = angleBetweenVectors(%vecA, %vecB);
-   %cross = getWord(vectorCross(%vecA, %vecB), 2);
-   if (%cross < 0)
-      %angle = -%angle; // immediately regretted using clockwise angle as positive. do not do it.
-   return %angle;
 }
 
 function Player::triggerSlingshot(%this)
@@ -300,23 +280,6 @@ function Player::isAirborne(%this) // thanks to Eagle517 for the ExtraConsoleMet
    return true;
 }
 
-// function Player::airtest(%this)
-// {
-//    cancel(%this.airtest);
-//    if(%this.getState() $= "Dead") 
-//    {
-//       return;
-// 	}
-	
-//    if(!%this.isAirborne())
-//    {
-//       talk("Ground");
-//    }
-//    else
-//       talk("Air");
-//    %this.airtest = %this.schedule(50, airtest);
-// }
-
 function Player::airDashTick(%this)  // tick check to see if we are still airborne after airboost
 {
    cancel(%this.airDashTick);
@@ -351,7 +314,9 @@ function Player::airDashTick(%this)  // tick check to see if we are still airbor
 }
 
 // TODO : progress drift energy charge, with charge emitters (star orbits?). adjust existing emitter logics.
-// consider slow charge on non-turn
+// TODO : consider slow charge on non-turn
+// TODO : may be a weird gap in air logic if stored speed is high, then kills all speed in air yet allows further drifting, dunno if should keep..
+// TODO : for the above, may want to look into continuous drift regardless of when you crouched
 function Player::driftTick(%this) // drift cooldown and timer, applying emitter logic
 {
    cancel(%this.driftTick);
@@ -466,11 +431,6 @@ function Player::driftTick(%this) // drift cooldown and timer, applying emitter 
    %this.driftTick = %this.schedule(40, driftTick);
 }
 
-function Player::getHorizontalVelocityVector(%this)
-{
-   return getWord(%this.getVelocity(), 0) SPC getWord(%this.getVelocity(), 1) SPC " 0";
-}
-
 function Player::auraTick(%this)
 {
    cancel(%this.auraTick);
@@ -523,3 +483,38 @@ package SlipstreamLightOverridePackage
    }
 };
 activatePackage("SlipstreamLightOverridePackage");
+
+// ===================================== //
+//             Dependencies
+// ===================================== //
+/// Returns the player's speed in units of Bricks per Second
+/// Credit to Buddy
+function Player::getSpeedInBPS(%this, %obj)
+{
+   return vectorLen(%this.getVelocity()) * 2;
+}
+
+/// Returns player's velocity vector without the vertical component
+function Player::getHorizontalVelocityVector(%this)
+{
+   return getWord(%this.getVelocity(), 0) SPC getWord(%this.getVelocity(), 1) SPC " 0";
+}
+
+/// Returns the angle between two vectors unsigned
+/// Probably does not work with vectors with vertical components
+function angleBetweenVectors(%vecA, %vecB)
+{
+   %dot = vectorDot(%vecA, %vecB);
+   return mAcos(%dot);
+}
+
+/// Returns the angle between two 2D vectors
+/// Signage is determined by direction of %vecB by %vecA, CCW is positive
+function signedAngleBetweenVectors(%vecA, %vecB)
+{
+   %angle = angleBetweenVectors(%vecA, %vecB);
+   %cross = getWord(vectorCross(%vecA, %vecB), 2);
+   if (%cross < 0)
+      %angle = -%angle; // immediately regretted using clockwise angle as positive. do not do it.
+   return %angle;
+}
