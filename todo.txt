@@ -31,14 +31,12 @@ create baseline emitters and make them look not ugly
 add sling boost sound logic (extend sound, run tick to end sound on slowdown, add mini boost sound)
 add stomp emitter and sound
     tick logic
+leeway for slingshots for a second or two > air slingshots?
 
 -----tertiary-----
 fix audio being weird in first person. centered on player which screws with direction?
 weird airdash airborne edge cases
-grind rails?
-
-
-
+player powerups?
 
 
 
@@ -46,6 +44,9 @@ grind rails?
 
 
 -----much later / needs some foundation-----
+drift ground lock?
+
+
 design prints (u turn)
 design extra emitters
 track system
@@ -60,3 +61,5 @@ item system
     maybe setting sounds..
 object collision dll
     toggle for all players
+	
+	grind rails?
