@@ -27,7 +27,6 @@ datablock PlayerData(PlayerBoostArmor : PlayerStandardArmor)
    runForce = 3500;
    maxStepHeight = 0;
 };
-<<<<<<< HEAD
 
 // ===================================== //
 //                Globals
@@ -44,8 +43,6 @@ $Slips_DriftMaxLongDriftAngle = 140;
 $Slips_AuraSpeedTrigger = 130;
 
 
-=======
->>>>>>> b3f25493f29cd46de49eefbdd79952500c10d973
 // ===================================== //
 //        Player and DB Functions
 // ===================================== //
