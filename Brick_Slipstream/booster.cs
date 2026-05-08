@@ -1,4 +1,5 @@
 // Sound assets, placeholder model, and a lot of functionality ripped from Ottosparks and Armageddon's platformer bricks
+$Slips_BoosterAngleIDDiff = 2;
 
 //DATABLOCKS
 datablock AudioProfile(BoosterSound)
@@ -17,12 +18,9 @@ datablock fxDTSBrickData(BrickBoosterData)
 	subCategory = "Dash Panels";
 	uiName = "Dash Panel";
 
-	orientationFix = 3;
-
 	isBooster = 1;
 	boosterPower = 60; 
 };
-
 
 //CLASS FUNCTIONS
 function fxDTSBrick::Booster(%this, %player, %power, %do) //Makes boosters boost. Gotta go fast.
@@ -47,7 +45,7 @@ function fxDTSBrick::Booster(%this, %player, %power, %do) //Makes boosters boost
 			%vel = %player.getSpeedInBPS() / 2;
 		}
 
-		%ang = %this.getAngleID() + 1;
+		%ang = %this.getAngleID() + $Slips_BoosterAngleIDDiff;
 		if(%ang > 3)
 			%ang -= 4;
 
