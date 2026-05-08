@@ -113,7 +113,10 @@ package slipstreamBoosterPlantPackage
 			%obj.setColliding(0);
 		}
 		parent::onPlant( %obj );
-		// %obj.setItem("HammerItem");
+		if(%data.isBooster)
+		{
+			%obj.setItem("testItem"); // << CHANGE THIS TO REAL BOOSTER ARROWS
+		}
 	}
 };
 activatePackage(slipstreamBoosterPlantPackage);
