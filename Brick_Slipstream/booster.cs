@@ -18,7 +18,7 @@ datablock fxDTSBrickData(BrickBoosterData)
 	subCategory = "Dash Panels";
 	uiName = "Dash Panel";
 
-	isBooster = 1;
+	isBrickBooster = 1;
 	boosterPower = 60; 
 };
 
@@ -31,16 +31,20 @@ datablock ItemData(BoosterPropItem : HammerItem)
 	passiveThread = "root";
 	image = "";
 	doColorShift = false;
+	cannotPickup = true;
 };
 
 //CLASS FUNCTIONS
-function fxDTSBrick::Booster(%this, %player, %power, %do) //Makes boosters boost. Gotta go fast.
+// TODO add sound, maybe fix teleport offset being slightly off ground
+function fxDTSBrick::Booster(%this, %player, %power, %boostClamp, %do)
 {
 	if(isEventPending(%player.booster))
 		cancel(%player.booster);
 
 	if(!isObject(%player))
 		return;
+	
+	%power *= 0.5;
 
 	%db = %this.getDatablock();
 	if(%do)
@@ -50,8 +54,7 @@ function fxDTSBrick::Booster(%this, %player, %power, %do) //Makes boosters boost
 		else
 			%vel = %db.boosterPower;
 		
-		// TODO add check for angle being close enough to booster's orientation, probably same as airdash
-		if(%player.getSpeedInBPS() / 2 > %vel)
+		if(!%boostClamp && %player.getSpeedInBPS() / 2 > %vel)
 		{
 			%vel = %player.getSpeedInBPS() / 2;
 		}
@@ -62,7 +65,7 @@ function fxDTSBrick::Booster(%this, %player, %power, %do) //Makes boosters boost
 
 		%vel = %vel SPC "0 0";
 		%vel = rotateVector(%vel, "0 0 0", %ang);
-
+		%this.doPlayerTeleport("SELF", 0, 0, 0, %player.client);
 		%player.setVelocity(%vel);
 		// ServerPlay3D(BoosterSound, %this.getPosition());
 		%player.stopAudio(3);
@@ -71,12 +74,12 @@ function fxDTSBrick::Booster(%this, %player, %power, %do) //Makes boosters boost
 	}
 }
 
-function fxDTSBrick::doBooster(%this, %power, %client) //The event that allows for custom power. Gotta go faster.
+function fxDTSBrick::doBooster(%this, %power, %boostClamp, %client)
 {
 	if(!isObject(%client.player))
 		return;
 
-	%this.Booster(%client.player, %power, true);
+	%this.Booster(%client.player, %power, %boostClamp, true);
 }
 
 function fxDTSBrick::onBooster(%this, %player)
@@ -108,7 +111,7 @@ package slipstreamBoosterPlantPackage
 		%data = %obj.getDataBlock();
 		
 		//apply events
-		if(%data.isBooster)
+		if(%data.isBrickBooster)
 		{
 			%obj.eventDelay0 = 0;
 			%obj.eventEnabled0 = 1;
@@ -117,14 +120,14 @@ package slipstreamBoosterPlantPackage
 			%obj.eventOutput0 = "doBooster";
 			%obj.eventOutputAppendClient0 = 1;
 			%obj.eventOutputIdx0 = outputEvent_GetOutputEventIdx("fxDTSBrick","doBooster");//37;
-			%obj.eventOutputParameter0_1 = 60;
+			%obj.eventOutputParameter0_1 = 120;
 			%obj.eventTarget0 = "Self";
 			%obj.eventTargetIdx0 = 0;
 			%obj.numEvents = 1;
 			%obj.setColliding(0);
 		}
 		parent::onPlant( %obj );
-		if(%data.isBooster)
+		if(%data.isBrickBooster)
 		{
 			%obj.setItem("BoosterPropItem");
 			%angle = %obj.getAngleID() + 2; // WHY IS IT OFFSET BY TWO FOR WHAT REASON IS THIS NECESSARY
@@ -138,7 +141,7 @@ activatePackage(slipstreamBoosterPlantPackage);
 
 //EVENT REGISTRATION
 registerInputEvent(fxDTSBrick, "onBooster", "Self fxDTSBrick\tPlayer Player\tClient GameConnection\tMiniGame MiniGame");
-registerOutputEvent(fxDTSBrick, "doBooster", "int 0 200 0", true);
+registerOutputEvent(fxDTSBrick, "doBooster", "int 0 200 0\tbool", true);
 
 //DEPENDENCY
 function rotateVector(%vector, %axis, %val) //Rotates a vector around the axis by an angleID.
