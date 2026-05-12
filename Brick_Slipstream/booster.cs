@@ -22,6 +22,17 @@ datablock fxDTSBrickData(BrickBoosterData)
 	boosterPower = 60; 
 };
 
+datablock ItemData(BoosterPropItem : HammerItem)
+{
+	shapeFile = "Add-Ons/Server_Slipstream/assets/dts/boosterProp.dts";
+	uiName = "BoosterProp";
+
+	isProp = 1;
+	passiveThread = "root";
+	image = "";
+	doColorShift = false;
+};
+
 //CLASS FUNCTIONS
 function fxDTSBrick::Booster(%this, %player, %power, %do) //Makes boosters boost. Gotta go fast.
 {
@@ -115,7 +126,11 @@ package slipstreamBoosterPlantPackage
 		parent::onPlant( %obj );
 		if(%data.isBooster)
 		{
-			%obj.setItem("testItem"); // << CHANGE THIS TO REAL BOOSTER ARROWS
+			%obj.setItem("BoosterPropItem");
+			%angle = %obj.getAngleID() + 2; // WHY IS IT OFFSET BY TWO FOR WHAT REASON IS THIS NECESSARY
+			if(%angle > 5)
+				%angle -= 4;
+			%obj.setItemDirection(%angle);
 		}
 	}
 };

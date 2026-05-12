@@ -1,26 +1,19 @@
 -----priority-----
+other gamemode objects
+    spring
+    boost ring
+    fan
+
 proper brick collision 
     event_brickzones and doTeleport
         add teleport to dobooster event
             may want to focus on order of speed check before teleporting
 
-animated objects
-    check item_seagull
-    apply to booster
-extend booster collision  
-    extend height without pushing model upward
-diagonal variants
-
-other gamemode objects
-    spring
-    boost ring
-    grind rails?
+object diagonal variants
 
 design ramp optimizer script
-    search through brickgroup for all modter ramps
-        replace all ramps with static shape of the blb?
-        replace all ramps with an elongated shape of the blb?
-        i dont bloody know
+    store staticshape data in initial brick name
+        onloadplant > check name > load staticshape
 
 design test map 
 
@@ -37,21 +30,13 @@ leeway for slingshots for a second or two > air slingshots?
 fix audio being weird in first person. centered on player which screws with direction?
 weird airdash airborne edge cases
 player powerups?
-<<<<<<< HEAD
-=======
-grind rails?
-
-
-
->>>>>>> b3f25493f29cd46de49eefbdd79952500c10d973
-
 
 
 -----much later / needs some foundation-----
 drift ground lock?
 
-
-design prints (u turn)
+design prints
+    u turn
 design extra emitters
 track system
     loading

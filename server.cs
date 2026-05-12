@@ -28,6 +28,7 @@ else if(ForceRequiredAddOn("Event_BrickZones") == $Error::AddOn_NotFound)
 else
 {
    exec("./temptimer.cs");
+   exec("./Script_AnimatedProps.cs");
    exec("./Player_Slipstream/main.cs");
    exec("./Brick_Slipstream/main.cs");
 }
