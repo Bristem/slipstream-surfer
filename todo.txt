@@ -3,11 +3,8 @@ other gamemode objects
     spring
     boost ring
     fan
-
-proper brick collision 
-    event_brickzones and doTeleport
-        add teleport to dobooster event
-            may want to focus on order of speed check before teleporting
+    ramp
+    ramp2x1
 
 object diagonal variants
 
@@ -28,7 +25,9 @@ leeway for slingshots for a second or two > air slingshots?
 
 -----tertiary-----
 fix audio being weird in first person. centered on player which screws with direction?
+    play audio client sided, and much smaller one on player?
 weird airdash airborne edge cases
+    hitting walls and specific brick bounds like ramps
 player powerups?
 
 

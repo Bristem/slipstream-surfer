@@ -22,6 +22,7 @@ datablock fxDTSBrickData(BrickBoosterData)
 	boosterPower = 60; 
 };
 
+// TODO FIX ITEM PICKUP ENABLING ON MINIGAME RESET??
 datablock ItemData(BoosterPropItem : HammerItem)
 {
 	shapeFile = "Add-Ons/Server_Slipstream/assets/dts/boosterProp.dts";
@@ -31,11 +32,11 @@ datablock ItemData(BoosterPropItem : HammerItem)
 	passiveThread = "root";
 	image = "";
 	doColorShift = false;
-	cannotPickup = true;
 };
 
 //CLASS FUNCTIONS
-// TODO add sound, maybe fix teleport offset being slightly off ground
+// TODO add sound
+// maybe fix teleport offset being slightly off ground
 function fxDTSBrick::Booster(%this, %player, %power, %boostClamp, %do)
 {
 	if(isEventPending(%player.booster))
@@ -123,6 +124,7 @@ package slipstreamBoosterPlantPackage
 			%obj.eventOutputParameter0_1 = 120;
 			%obj.eventTarget0 = "Self";
 			%obj.eventTargetIdx0 = 0;
+			
 			%obj.numEvents = 1;
 			%obj.setColliding(0);
 		}
